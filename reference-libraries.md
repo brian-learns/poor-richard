@@ -65,11 +65,9 @@ listed below is installed unless marked *(candidate — not installed)*.
 
 ## 占 Astrology & Horoscopic Mechanics
 
-*(candidates — not installed; Swiss Ephemeris stack)*
-
-* [flatlib](https://github.com/sinisa-markic/flatlib): A Python engine specifically designed for traditional, western, and horoscopic astrology calculations. It abstracts low-level celestial positions into astrological concepts, returning exact houses, planetary aspects, zodiacal positions, and traditional essential dignities natively.
-* [kerykeion](https://github.com/robin900/Kerykeion): A modern, object-oriented framework for astrology built directly on top of the Swiss Ephemeris (pyswisseph). It effortlessly structures data into clean Pydantic-like models, outputting full natal charts, aspects, and planetary positions as clean dictionary schemas that models like Qwen or Spark can read instantly.
-* [pyswisseph](https://pypi.org/project/pyswisseph/): The official Python binding to the Swiss Ephemeris, which is the undisputed, highly optimized C-library used by almost all professional astrology software worldwide. It provides maximum precision for planetary positions, house systems (Placidus, Koch, Regiomontanus), and lunar nodes spanning a 10,000-year window entirely locally.
+* [pysweph](https://github.com/sailorfe/pysweph): The maintained community fork of [pyswisseph](https://pypi.org/project/pyswisseph/) — the Python binding to the Swiss Ephemeris (AstroDienst), the highly optimized C-library used by almost all professional astrology software worldwide. Maximum precision for planetary positions, house systems (Placidus, Koch, Regiomontanus), and lunar nodes spanning a 10,000-year window entirely locally; without the `.se1/.se2` data files it falls back to the built-in Moshier ephemeris (arcsecond-class). **Not backwards-compatible with pyswisseph** (`calc_ut` returns `(results, retflags, warning_str)`, `FLG_*` flags). AGPL-2.0, accepted for this project. `uv add pysweph` (imports as `swisseph`)
+* [flatlib](https://github.com/sinisa-markic/flatlib) *(candidate — not installed)*: A Python engine specifically designed for traditional, western, and horoscopic astrology calculations. It abstracts low-level celestial positions into astrological concepts, returning exact houses, planetary aspects, zodiacal positions, and traditional essential dignities natively.
+* [kerykeion](https://github.com/robin900/Kerykeion) *(candidate — not installed)*: A modern, object-oriented framework for astrology built directly on top of the Swiss Ephemeris (pyswisseph). It effortlessly structures data into clean Pydantic-like models, outputting full natal charts, aspects, and planetary positions as clean dictionary schemas that models like Qwen or Spark can read instantly.
 
 ## 🧩 Hybrid & Miscellaneous Star References
 

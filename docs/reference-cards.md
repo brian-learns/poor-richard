@@ -111,7 +111,7 @@ means the specific golden path is offline and correct.
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (41 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (42 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -156,6 +156,7 @@ Source of truth: `poor_richard.registry.CARDS` (41 entries incl. the auxiliary).
 | idna | idna | convert | ⚙ verified | 428 KB | BSD-3 |
 | pandas-market-calendars | pandas-market-calendars | temporal | ⚙ verified | 1.1 MB | MIT |
 | chemicals | chemicals | lookup | ⚙ verified | 73 MB | MIT |
+| pysweph | pysweph | compute | ⚙ verified | 2 MB | AGPL-2.0 |
 | networkx *(auxiliary)* | networkx | — | ⚙ verified | 13 MB | BSD-3 |
 
 ## 6. Candidates not yet installed
@@ -169,7 +170,7 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 | `thermo` / `fluids` | chemistry | ChEDL compute layer over `chemicals` (installed); heavy, not needed for lookup |
 | `pvlib` | astronomy | solar position & irradiance (NREL SPA) — native-ish |
 | `music21` | music | note names/scales/score analysis — large |
-| `flatlib` / `kerykeion` / `pyswisseph` | astrology | listed in `reference-libraries.md` but not yet installed (Swiss Ephemeris stack) |
+| `flatlib` / `kerykeion` | astrology | listed in `reference-libraries.md` but not yet installed (Swiss Ephemeris stack; `pyswisseph` replaced by installed `pysweph`) |
 | `rfc3987` | formats | IRI parsing — **GPL-3+**, excluded from default install (opt-in candidate) |
 | `pysolar` | astronomy | solar position — **GPL**, excluded from default install (opt-in candidate) |
 
@@ -222,3 +223,10 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 17. **GPL exclusions** — `rfc3987` (GPL-3+) and `pysolar` (GPL) are documented
     opt-in candidates, not in the default install; the LGPL set (item 10) is
     the license floor.
+18. **`pysweph` is AGPL-2.0 and not a drop-in for `pyswisseph`** — accepted for
+    this project on maintainer decision (network-copyleft only matters if
+    offering it as a network service). API breaks: `calc_ut` returns
+    `(results, retflags, warning_str)`, flags are `FLG_*`, results is a 6-tuple.
+    Without the `.se1/.se2` data files it falls back to the built-in Moshier
+    ephemeris (arcsecond-class — cross-checked vs astropy/JPL to <2″); the
+    fallback is announced in the returned warning string.

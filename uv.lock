@@ -832,6 +832,7 @@ dependencies = [
     { name = "pint" },
     { name = "pycountry" },
     { name = "pypostal-multiarch" },
+    { name = "pysweph" },
     { name = "python-dateutil" },
     { name = "python-iso639" },
     { name = "python-magic" },
@@ -882,6 +883,7 @@ requires-dist = [
     { name = "pint", specifier = ">=0.25.3" },
     { name = "pycountry", specifier = ">=26.2.16" },
     { name = "pypostal-multiarch", specifier = ">=1.0.3" },
+    { name = "pysweph", specifier = ">=2.10.3.6" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
     { name = "python-iso639", specifier = ">=2026.7.23" },
     { name = "python-magic", specifier = ">=0.4.27" },
@@ -1055,6 +1057,12 @@ dependencies = [
     { name = "six" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/df/93/2b448eb06a7d989a5802558a0aa05b757b787cddf7c2926354457185b188/pypostal_multiarch-1.0.3.tar.gz", hash = "sha256:53de9a62015481a08b63332521554153c1b8b1730bcf54c575f1db5a3756e8c3", size = 38256, upload-time = "2025-08-15T01:07:46.199Z" }
+
+[[package]]
+name = "pysweph"
+version = "2.10.3.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/c4/9af783bfa24288f3f27ecd4e8cbcd0a93f980414aab3394de5e111859d10/pysweph-2.10.3.6.tar.gz", hash = "sha256:690080559951f827e95d568dc6764aa8d4bfb4fa8a5435eb5abe24c1e01c166a", size = 974703, upload-time = "2026-02-19T16:27:27.986Z" }
 
 [[package]]
 name = "pytest"

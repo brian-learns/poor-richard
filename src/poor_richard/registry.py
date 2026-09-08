@@ -839,6 +839,34 @@ CARDS: tuple[ReferenceCard, ...] = (
         notes="Key by CAS-RN (MW('7732-18-5')). Part of Caleb Bell's ChEDL; "
         "thermo/fluids build the computation layer on top (not installed).",
     ),
+    ReferenceCard(
+        id="pysweph",
+        name="pysweph",
+        pypi="pysweph",
+        import_name="swisseph",
+        archetypes=(_A.COMPUTE,),
+        provenance="AstroDienst Swiss Ephemeris 2.10 (community fork of pyswisseph)",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="2 MB (single compiled .so, Moshier ephemeris built in)",
+        native_deps="none (self-contained extension module)",
+        license="AGPL-2.0",
+        questions=(
+            Question(
+                "Sun ecliptic longitude 2025-06-15 12:00 UTC?",
+                "84.641 deg (JD 2460842.0, just under the 90 deg solstice)",
+                "verified",
+                "test_pysweph",
+            ),
+        ),
+        notes="NOT backwards-compatible with pyswisseph: calc_ut returns "
+        "(results, retflags, warning_str), flags are FLG_* (FLG_SWIEPH|FLG_SPEED "
+        "default), results is a 6-tuple with speeds. Without the .se1/.se2 data "
+        "files it falls back to the built-in Moshier ephemeris (arcsecond-class, "
+        "cross-checked vs astropy/JPL; check the returned warning string). "
+        "AGPL-2.0 — accepted for this project on maintainer decision.",
+    ),
     # ---------------------------------------------------------- auxiliaries
     ReferenceCard(
         id="networkx",

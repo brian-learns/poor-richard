@@ -495,3 +495,25 @@ def test_czml3():
         4785512.491172238,
         5338712.263513341,
     ]
+
+
+def test_pysweph():
+    import swisseph
+
+    # 2025-06-15 12:00 UTC = JD 2460842.0 (2.6 days before the June solstice,
+    # so the sun's ecliptic longitude is just under 90 degrees)
+    jd = 2460842.0
+    results, retflags, warn = swisseph.calc_ut(jd, swisseph.SUN)
+    lon, lat, dist = results[:3]
+    assert 84.5 < lon < 84.8
+    assert abs(lat) < 0.001
+    assert abs(dist - 1.015725) < 1e-4
+    # pysweph (unlike pyswisseph) returns (results, retflags, warning_str)
+    assert isinstance(warn, str)
+
+    m_results, _, _ = swisseph.calc_ut(jd, swisseph.MOON)
+    m_lon, m_lat, m_dist = m_results[:3]
+    # cross-checked against astropy/JPL DE432 within ~2 arcsec
+    assert abs(m_lon - 313.46463) < 0.01
+    assert abs(m_lat - (-3.16)) < 0.01
+    assert abs(m_dist - 0.002581) < 1e-4
