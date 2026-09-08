@@ -18,6 +18,8 @@ hallucinated or web-fetched ones.
   notebook-style agent harnesses) with their tradeoffs
 - `docs/personas.md` — Noah (NOOA agent), Hank (shell-only agent), Broman
   (human): who consumes what, and the feature × persona matrix
+- `docs/test_plan.md` — how to test the almanack with real agents and users
+  (8 tasks, scoring grid, known hazards)
 - `src/poor_richard/registry.py` — the machine-readable reference cards
   (provenance, update model, offline status, footprint, license, golden questions)
 - `src/poor_richard/tests/test_golden.py` — the golden questions; every test runs
