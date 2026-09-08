@@ -16,6 +16,8 @@ hallucinated or web-fetched ones.
 - `docs/adding-a-library.md` — how to add a new library
 - `docs/future-directions.md` — tentative proposals (keyword field, REPL,
   notebook-style agent harnesses) with their tradeoffs
+- `docs/personas.md` — Noah (NOOA agent), Hank (shell-only agent), Broman
+  (human): who consumes what, and the feature × persona matrix
 - `src/poor_richard/registry.py` — the machine-readable reference cards
   (provenance, update model, offline status, footprint, license, golden questions)
 - `src/poor_richard/tests/test_golden.py` — the golden questions; every test runs
