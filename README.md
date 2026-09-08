@@ -13,6 +13,9 @@ hallucinated or web-fetched ones.
 - `reference-libraries.md` — the curated narrative, grouped by domain
 - `docs/reference-cards.md` — the design: question archetypes, evaluation axes,
   the reference-card schema, the golden-question test method, and gotchas
+- `docs/adding-a-library.md` — how to add a new library
+- `docs/future-directions.md` — tentative proposals (keyword field, REPL,
+  notebook-style agent harnesses) with their tradeoffs
 - `src/poor_richard/registry.py` — the machine-readable reference cards
   (provenance, update model, offline status, footprint, license, golden questions)
 - `src/poor_richard/tests/test_golden.py` — the golden questions; every test runs
