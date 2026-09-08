@@ -3,10 +3,12 @@
 Enforce the golden-question method at the metadata level:
 - every card is internally well-formed,
 - every carded library is actually importable,
-- verified questions point at real tests in tests/test_golden.py,
-- the registry stays in sync with pyproject.toml.
+- verified questions point at real tests in poor_richard/tests/test_golden.py,
+- the registry stays in sync with pyproject.toml,
+- every card has an example source for `poor-richard --example`.
 """
 
+import ast
 import importlib
 import tomllib
 from pathlib import Path
@@ -15,12 +17,13 @@ import pytest
 
 import poor_richard
 from poor_richard import CARDS, by_pypi, get
+from poor_richard import _derive_example
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _test_module():
-    import tests.test_golden as tg
+    import poor_richard.tests.test_golden as tg
 
     return tg
 
@@ -53,7 +56,7 @@ def test_cards_well_formed():
 
 
 def test_import_names_resolvable():
-    from tests.test_golden import LibpostalMissing, _preload_libpostal
+    from poor_richard.tests.test_golden import LibpostalMissing, _preload_libpostal
 
     try:
         _preload_libpostal()
@@ -80,6 +83,24 @@ def test_registry_matches_pyproject():
     missing_deps = carded - deps
     assert not missing_cards, f"dependencies without a card: {missing_cards}"
     assert not missing_deps, f"cards without a dependency: {missing_deps}"
+
+
+def test_every_card_has_example_source():
+    """`--example` needs a curated snippet or a derivable golden test per card."""
+    for card in CARDS:
+        if card.example:
+            continue
+        test_id = next(
+            (q.test_id for q in card.questions if q.status == "verified" and q.test_id),
+            f"test_{card.id}",
+        )
+        assert _derive_example(test_id), f"{card.id}: no curated example, no derivable test"
+
+
+def test_curated_examples_compile():
+    for card in CARDS:
+        if card.example:
+            ast.parse(card.example), f"{card.id}: curated example is not valid python"
 
 
 def test_lookups():

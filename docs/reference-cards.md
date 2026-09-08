@@ -84,10 +84,10 @@ question is a triple:
    e.g. the IBAN spec's example, CODATA, the IANA tz database — not from the
    library's own docs), with a tight tolerance for floats.
 
-**Offline enforcement.** `tests/conftest.py` installs an autouse fixture that
-patches `socket.connect`, `socket.socket.connect_ex`, and `socket.getaddrinfo`
-to raise for **every test**, so `uv run pytest tests/` runs fully offline.
-Where permitted, `unshare -n uv run pytest tests/` is stronger (kernel-level).
+**Offline enforcement.** `src/poor_richard/tests/conftest.py` installs an autouse
+fixture that patches `socket.connect`, `socket.socket.connect_ex`, and
+`socket.getaddrinfo` to raise for **every test**, so `uv run pytest` runs fully
+offline. Where permitted, `unshare -n uv run pytest` is stronger (kernel-level).
 
 Caveats: the socket patch catches TCP/DNS attempts made *after* interpreter start;
 a library that fetches data **at import time** fails loudly (desired). A PASS
@@ -98,16 +98,24 @@ means the specific golden path is offline and correct.
 1. `uv add <pkg>`.
 2. Pick 1–5 questions spanning the library's archetypes; get expected values from
    the standard, not the package docs.
-3. Add a `test_<card_id>()` function to `tests/test_golden.py` (imports inside the
-   function so import-time network fetches are caught).
+3. Add a `test_<card_id>()` function to `src/poor_richard/tests/test_golden.py`
+   (imports inside the function so import-time network fetches are caught).
 4. Add/extend the card in `poor_richard/registry.py` with the questions,
    `status="verified"`, `test_id="test_<card_id>"`.
-5. Run `uv run pytest tests/`; on failure, fix the *test's* API usage or expected
-   value — investigate before weakening an assertion.
+5. Run `uv run pytest`; on failure, fix the *test's* API usage or expected value —
+   investigate before weakening an assertion.
 6. Update the card table in this doc.
 
-**Status (2026-09):** all 29 reference cards have passing offline golden tests
-(34 verified questions); the ephem moon-phase question is an xfail canary (see §7).
+**Tests double as usage examples.** `poor-richard --example [id ...]` re-emits a
+card's golden test as a runnable snippet: calls kept, assertions turned into
+`# golden:` comments. It parses the test source (never imports the libraries),
+which is why the tests live inside the package and ship in the wheel. Tests that
+use fixtures or system libraries (mido, starfile, postal, networkx) carry a
+hand-written `example` field on the card instead; the integrity tests enforce
+that every card has one or the other.
+
+**Status (2026-09):** all 42 cards have passing offline golden examples; 46
+verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 

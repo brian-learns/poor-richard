@@ -72,6 +72,7 @@ class ReferenceCard:
     license: str
     questions: tuple[Question, ...]
     notes: str = ""
+    example: str = ""  # curated snippet; empty => derive from the golden test
 
 
 _A = Archetype
@@ -178,6 +179,15 @@ CARDS: tuple[ReferenceCard, ...] = (
         "(mail-sending client) are unrelated. pypostal-multiarch is the OpenVenues "
         "binding rebundled with multi-arch wheels; it needs system libpostal.so.1 on "
         "the loader path (tests preload it via ctypes, skipping if absent).",
+        example=(
+            "from postal.parser import parse_address\n"
+            "from postal.expand import expand_address\n"
+            "\n"
+            "r = {t: v for v, t in parse_address(\n"
+            "    '1600 Pennsylvania Avenue NW, Washington, DC 20500', country='united states')}\n"
+            "# golden: r['house_number'] == '1600' and r['postcode'] == '20500'\n"
+            "alts = expand_address('1600 Penn Ave NW')  # 'northwest' -> 'NW' & co.\n"
+        ),
     ),
     # ------------------------------------------------------- physics/units
     ReferenceCard(
@@ -614,6 +624,23 @@ CARDS: tuple[ReferenceCard, ...] = (
         ),
         notes="read() returns a DataBlock (pandas DataFrame); column names drop the "
         "leading underscore.",
+        example=(
+            "import starfile\n"
+            "from pathlib import Path\n"
+            "\n"
+            "star = (\n"
+            "    'data_block\\n\\n'\n"
+            "    'loop_\\n'\n"
+            "    '_pixel.x\\n_pixel.y\\n_pixel.intensity\\n'\n"
+            "    '1.0 2.0 100.0\\n'\n"
+            "    '3.0 4.0 200.0\\n'\n"
+            ")\n"
+            "p = Path('example.star')\n"
+            "p.write_text(star)\n"
+            "blk = starfile.read(p)\n"
+            "# golden: list(blk.columns) == ['pixel.x', 'pixel.y', 'pixel.intensity']\n"
+            "# golden: blk['pixel.x'].tolist() == [1.0, 3.0]\n"
+        ),
     ),
     ReferenceCard(
         id="czml3",
@@ -708,6 +735,19 @@ CARDS: tuple[ReferenceCard, ...] = (
         ),
         notes="save() takes a filename, not a file object; filter MetaMessage "
         "(isinstance) when iterating tracks.",
+        example=(
+            "import mido\n"
+            "\n"
+            "mid = mido.MidiFile()\n"
+            "track = mido.MidiTrack()\n"
+            "mid.tracks.append(track)\n"
+            "track.append(mido.Message('note_on', note=60, velocity=64, time=0))\n"
+            "track.append(mido.Message('note_off', note=60, velocity=64, time=480))\n"
+            "mid.save('example.mid')  # save() takes a filename, not a file object\n"
+            "readback = mido.MidiFile('example.mid')\n"
+            "notes = [m for m in readback.tracks[0] if isinstance(m, mido.Message)]\n"
+            "# golden: [(m.type, m.note, m.velocity) for m in notes] == [('note_on', 60, 64), ('note_off', 60, 64)]\n"
+        ),
     ),
     ReferenceCard(
         id="particle",
@@ -882,6 +922,13 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(),  # auxiliary: exercised through the colour-science card
+        example=(
+            "import networkx as nx\n"
+            "\n"
+            "g = nx.Graph()\n"
+            "g.add_edges_from([(\"sRGB\", \"CIEXYZ\"), (\"CIEXYZ\", \"sRGB\"), (\"CIEXYZ\", \"HSV\")])\n"
+            "# golden: nx.has_path(g, \"sRGB\", \"HSV\") is True\n"
+        ),
     ),
 )
 

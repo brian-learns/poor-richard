@@ -63,3 +63,7 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.1.1",
 ]
+
+[tool.pytest.ini_options]
+# tests live inside the package so the wheel ships them (for --example)
+testpaths = ["src/poor_richard/tests"]

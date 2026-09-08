@@ -1,8 +1,10 @@
 """Poor Richard - a modern almanack of offline reference libraries."""
 
+import ast
 import importlib
 import os
 import sys
+from pathlib import Path
 
 from poor_richard.registry import (
     CARDS,
@@ -25,15 +27,20 @@ __all__ = [
     "main",
 ]
 
-USAGE = "usage: poor-richard [--help <module>]"
+USAGE = "usage: poor-richard [--help <module> | --example [id ...]]"
+
+# Golden tests ship inside the package so examples work from the wheel too.
+_GOLDEN_TEST_FILE = Path(__file__).parent / "tests" / "test_golden.py"
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Print the reference-card registry, or help() for one module."""
+    """Print the registry, help() for a module, or usage examples."""
     argv = list(sys.argv[1:] if argv is None else argv)
     try:
         if argv[:1] in (["--help"], ["-h"]):
             return _show_help(argv[1:])
+        if argv[:1] == ["--example"]:
+            return _print_examples(argv[1:])
         return _print_cards()
     except BrokenPipeError:
         # piped output, e.g. `poor-richard | head`; keep shutdown quiet
@@ -49,6 +56,75 @@ def _print_cards() -> int:
         status = "verified" if card.offline_verified else "not verified"
         print(f"{card.id:<20} {card.pypi:<22} {arch:<28} {status:<15} {card.license}")
     print(f"\n{len(CARDS)} reference cards; {verified} verified golden questions")
+    return 0
+
+
+def _resolve_names(args: list[str]) -> tuple[list[ReferenceCard], set[str]]:
+    """Match args against card ids / PyPI names / import names.
+
+    Returns (matched_cards, unknown_names); empty args match all cards.
+    """
+    wanted = set(args)
+    if not wanted:
+        return list(CARDS), set()
+    known = set()
+    for card in CARDS:
+        known.update((card.id, card.pypi, card.import_name))
+    unknown = wanted - known
+    matched = [c for c in CARDS if wanted & {c.id, c.pypi, c.import_name}]
+    return matched, unknown
+
+
+def _derive_example(test_id: str) -> str:
+    """Re-emit a golden test as a usage example.
+
+    Non-assert statements are re-parsed and re-emitted; asserts become
+    `# golden:` comments so the verified values stay visible. Reads the
+    test source file - never imports the libraries - so this is fast and
+    works from an installed wheel.
+    """
+    try:
+        tree = ast.parse(_GOLDEN_TEST_FILE.read_text())
+    except (OSError, SyntaxError):
+        return ""
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == test_id:
+            lines = []
+            for stmt in node.body:
+                if isinstance(stmt, ast.Assert):
+                    lines.append(f"# golden: {ast.unparse(stmt.test)}")
+                else:
+                    lines.append(ast.unparse(stmt))
+            return "\n".join(lines)
+    return ""
+
+
+def _example_body(card: ReferenceCard) -> str:
+    if card.example:
+        return card.example.rstrip("\n")
+    test_id = next(
+        (q.test_id for q in card.questions if q.status == "verified" and q.test_id),
+        f"test_{card.id}",
+    )
+    return _derive_example(test_id)
+
+
+def _print_examples(args: list[str]) -> int:
+    matched, unknown = _resolve_names(args)
+    if unknown:
+        for name in sorted(unknown):
+            print(f"poor-richard: unknown card: {name!r}", file=sys.stderr)
+        print(USAGE, file=sys.stderr)
+        return 2
+    blocks = []
+    for card in matched:
+        body = _example_body(card)
+        if not body:
+            print(f"poor-richard: no example for {card.id!r}", file=sys.stderr)
+            return 1
+        header = f"# poor-richard: {card.name} (pypi: {card.pypi}, {card.license})"
+        blocks.append(f"{header}\n# {card.provenance}\n{body}")
+    print("\n\n".join(blocks))
     return 0
 
 
