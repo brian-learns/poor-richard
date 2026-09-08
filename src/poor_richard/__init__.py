@@ -14,6 +14,7 @@ from poor_richard.registry import (
     UpdateModel,
     by_pypi,
     get,
+    search,
 )
 
 __all__ = [
@@ -25,22 +26,25 @@ __all__ = [
     "by_pypi",
     "get",
     "main",
+    "search",
 ]
 
-USAGE = "usage: poor-richard [--help <module> | --example [id ...]]"
+USAGE = "usage: poor-richard [--help <module> | --example [id ...] | --ask <query>]"
 
 # Golden tests ship inside the package so examples work from the wheel too.
 _GOLDEN_TEST_FILE = Path(__file__).parent / "tests" / "test_golden.py"
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Print the registry, help() for a module, or usage examples."""
+    """Print the registry, help() for a module, usage examples, or a ranking."""
     argv = list(sys.argv[1:] if argv is None else argv)
     try:
         if argv[:1] in (["--help"], ["-h"]):
             return _show_help(argv[1:])
         if argv[:1] == ["--example"]:
             return _print_examples(argv[1:])
+        if argv[:1] == ["--ask"]:
+            return _ask(argv[1:])
         return _print_cards()
     except BrokenPipeError:
         # piped output, e.g. `poor-richard | head`; keep shutdown quiet
@@ -125,6 +129,20 @@ def _print_examples(args: list[str]) -> int:
         header = f"# poor-richard: {card.name} (pypi: {card.pypi}, {card.license})"
         blocks.append(f"{header}\n# {card.provenance}\n{body}")
     print("\n\n".join(blocks))
+    return 0
+
+
+def _ask(args: list[str]) -> int:
+    """Rank cards against a natural-language query: '<score> <id>' per line."""
+    if not args:
+        print(USAGE, file=sys.stderr)
+        return 2
+    results = search(" ".join(args))
+    if not results:
+        print(f"poor-richard: no match for {' '.join(args)!r}", file=sys.stderr)
+        return 1
+    for score, card, _question in results:
+        print(f"{score:.2f} {card.id}")
     return 0
 
 

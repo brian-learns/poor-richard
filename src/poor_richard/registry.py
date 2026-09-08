@@ -12,6 +12,8 @@ for the full design and the golden-question test method.
 
 from __future__ import annotations
 
+import difflib
+import re
 from dataclasses import dataclass
 from enum import Enum
 
@@ -23,6 +25,7 @@ __all__ = [
     "CARDS",
     "get",
     "by_pypi",
+    "search",
 ]
 
 
@@ -398,7 +401,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         pypi="phonenumbers",
         import_name="phonenumbers",
         archetypes=(_A.PARSE, _A.VALIDATE),
-        provenance="ITU E.164 numbering plan (Google libphonenumber data)",
+        provenance="Phone number parsing/validation/formatting per the ITU E.164 numbering plan (Google libphonenumber data)",
         update_model=_U.SNAPSHOT,
         offline=True,
         offline_verified=True,
@@ -982,3 +985,67 @@ def by_pypi(pypi_name: str) -> ReferenceCard:
         if card.pypi == pypi_name:
             return card
     raise KeyError(f"unknown pypi distribution: {pypi_name!r}")
+
+
+# ------------------------------------------------------------------ search
+#
+# Fuzzy lookup over the cards: question text, provenance, notes, and
+# name-like fields. The corpus is a few KB, so a stdlib linear scan is
+# the right tool - no index, no extra dependency, fully offline.
+
+_STOP = frozenset(
+    "a an and at be by can do does for from how in is it its of on or "
+    "the to what which with".split()
+)
+_TOKEN = re.compile(r"\w+")
+_MIN_SCORE = 0.25
+
+
+def _tokens(text: str) -> set[str]:
+    out = set()
+    for t in _TOKEN.findall(text.lower()):
+        if t in _STOP:
+            continue
+        # naive plural fold: "numbers" -> "number" (not "ss": "business")
+        if len(t) > 3 and t.endswith("s") and not t.endswith("ss"):
+            t = t[:-1]
+        out.add(t)
+    return out
+
+
+def _card_text(card: ReferenceCard) -> str:
+    parts = [card.name, card.pypi, card.import_name, card.provenance, card.notes]
+    parts += [f"{q.question} {q.expected}" for q in card.questions]
+    return " ".join(parts)
+
+
+def search(query: str, top: int = 3) -> list[tuple[float, ReferenceCard, Question | None]]:
+    """Rank cards against a natural-language query.
+
+    Returns up to `top` (score, card, matched_question) triples, best
+    first. Score is query-token coverage of the card text plus a
+    difflib name-similarity bonus (so `color` finds `colour-science`).
+    Empty list when nothing clears the threshold.
+    """
+    qt = _tokens(query)
+    if not qt:
+        return []
+    results: list[tuple[float, ReferenceCard, Question | None]] = []
+    for card in CARDS:
+        coverage = len(qt & _tokens(_card_text(card))) / len(qt)
+        names = (card.id, card.name, card.pypi, card.import_name)
+        name_sim = max(
+            (difflib.SequenceMatcher(None, a, b).ratio() for a in (query, *qt) for b in names),
+            default=0.0,
+        )
+        score = coverage + 0.5 * name_sim
+        if score < _MIN_SCORE:
+            continue
+        best_q = max(
+            (q for q in card.questions if _tokens(q.question) & qt),
+            key=lambda q: len(_tokens(q.question) & qt),
+            default=None,
+        )
+        results.append((round(score, 3), card, best_q))
+    results.sort(key=lambda r: -r[0])  # stable: card order breaks ties
+    return results[:top]

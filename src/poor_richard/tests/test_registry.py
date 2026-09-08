@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 import poor_richard
-from poor_richard import CARDS, by_pypi, get
+from poor_richard import CARDS, by_pypi, get, search
 from poor_richard import _derive_example
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -110,6 +110,42 @@ def test_lookups():
         get("nope")
     with pytest.raises(KeyError):
         by_pypi("nope")
+
+
+def test_search_question_match():
+    res = search("molar mass of water", top=1)
+    assert res and res[0][1].id == "molmass"
+    assert res[0][2] is not None and "H2O" in res[0][2].question
+
+
+def test_search_name_typo():
+    res = search("color", top=1)
+    assert res and res[0][1].id == "colour-science"
+
+
+def test_search_topics():
+    assert search("validate a phone number")[0][1].id == "phonenumbers"
+    assert search("IBAN validation")[0][1].id == "python-stdnum"
+    assert search("business days NYSE")[0][1].id == "bizdays"
+
+
+def test_search_exact_id_wins():
+    res = search("bizdays", top=1)
+    assert res and res[0][1].id == "bizdays" and res[0][0] >= 1.0
+
+
+def test_search_no_match():
+    assert search("zzzqqq xkcdplugh") == []
+    assert search("the of and") == []  # stopwords only
+
+
+def test_console_ask(capsys):
+    assert poor_richard.main(["--ask", "molar", "mass", "of", "water"]) == 0
+    out = capsys.readouterr().out
+    lines = out.splitlines()
+    assert lines[0].endswith("molmass") and lines[0].split()[0] == "1.03"
+    assert "18.015" not in out  # ranking only: no answers, no examples
+    assert poor_richard.main(["--ask"]) == 2
 
 
 def test_console_script_runs(capsys):

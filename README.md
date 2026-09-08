@@ -29,8 +29,17 @@ uv run poor-richard                 # print the reference-card registry
 uv run poor-richard --help particle # help() text for one module
 uv run poor-richard --example       # usage example for every card
 uv run poor-richard --example mido  # just one (curated, else derived from its test)
+uv run poor-richard --ask "molar mass of water"
+                                    # fuzzy-lookup: '<score> <card id>' per line
 uv run pytest                       # run all golden questions offline
 ```
+
+`--ask` ranks the cards against the query (token coverage of question text,
+provenance and notes, plus a fuzzy name match so `color` finds
+`colour-science`) and prints one `<score> <card id>` line per match — a
+script-friendly pointer, not the answer itself. Follow up with
+`--example <id>` or `poor_richard.search("...")` (which also returns the
+matched question and its verified answer) for the details.
 
 `--example` re-emits a card's golden test as a runnable snippet: the calls are
 kept, the assertions become `# golden:` comments so the verified values stay

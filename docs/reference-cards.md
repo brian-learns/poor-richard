@@ -114,7 +114,19 @@ use fixtures or system libraries (mido, starfile, postal, networkx) carry a
 hand-written `example` field on the card instead; the integrity tests enforce
 that every card has one or the other.
 
-**Status (2026-09):** all 42 cards have passing offline golden examples; 46
+**Agent-facing lookup.** `poor-richard --ask "<query>"` (or
+`poor_richard.search(query)`) is the fuzzy front door: it ranks cards by
+query-token coverage of question text, provenance, and notes, plus a
+`difflib` name-similarity bonus (typos like `color` → `colour-science`).
+The CLI prints one `<score> <card id>` line per match — a pointer, not an
+answer; `search()` additionally returns the matched question and its
+verified answer for programmatic use. Stdlib only, fully offline; a small
+stoplist and naive plural folding (`numbers` → `number`) handle the
+paraphrase gap. Card text is therefore curated for discoverability — if a
+natural query misses, fix the card's provenance/notes before adding
+machinery.
+
+**Status (2026-09):** all 43 cards have passing offline golden examples; 48
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
