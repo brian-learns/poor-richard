@@ -517,3 +517,20 @@ def test_pysweph():
     assert abs(m_lon - 313.46463) < 0.01
     assert abs(m_lat - (-3.16)) < 0.01
     assert abs(m_dist - 0.002581) < 1e-4
+
+
+def test_financedatabase():
+    import financedatabase
+    from pathlib import Path
+
+    data = Path(financedatabase.__file__).resolve().parent.parent / "compression"
+    if not (data / "equities.bz2").exists():
+        pytest.skip("financedatabase data not fetched (scripts/fetch_financedatabase.py)")
+    # default mode downloads from GitHub per instantiation; use_local_location=True
+    eq = financedatabase.Equities(use_local_location=True)
+    aapl = eq.data.loc["AAPL"]  # symbol is the DataFrame index, not a column
+    assert aapl["sector"] == "Information Technology"
+    assert aapl["industry"] == "Electronic Equipment, Instruments & Components"
+    cur = financedatabase.Currencies(use_local_location=True)
+    pair = cur.data.loc["EURUSD=X"]
+    assert (pair["base_currency"], pair["quote_currency"]) == ("EUR", "USD")

@@ -36,6 +36,7 @@ listed below is installed unless marked *(candidate — not installed)*.
 * [isodate](https://github.com/gweis/isodate/): ISO 8601 date/time/duration parsing — `parse_duration('P1Y2M3DT4H5M6S')` yields `years`/`months`/`days` as ints and `seconds` as the total time seconds (14706). `uv add isodate`
 * [bizdays](https://pypi.org/project/bizdays/): Business-day arithmetic over exchange calendars (bundles the `pandas_market_calendars` datasets as `PMC/XNYS` & co.) — `Calendar.load("PMC/XNYS").adjust_next(date)`. `uv add bizdays`
 * [pandas-market-calendars](https://github.com/rsheftel/pandas_market_calendars): Exchange session calendars for pandas (open/close/auction times, valid sessions, holidays) — pins pandas 2.3.3. `uv add pandas-market-calendars`
+* [financedatabase](https://github.com/JerBouma/FinanceDatabase): Curated classification of 305k financial symbols (112k equities, ETFs, funds, indices, currency pairs, cryptos) — sector, industry, exchange, ISIN/CUSIP/FIGI per symbol. Data is bz2 CSV fetched once from the project repo (`scripts/fetch_financedatabase.py`), then read offline via `use_local_location=True`; the default mode re-downloads per instantiation. `uv add financedatabase` — note the heavy transitive deps (scikit-learn, yfinance) via financetoolkit.
 
 ## 🪪 Validation & Identifiers
 

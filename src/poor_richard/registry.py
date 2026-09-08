@@ -861,6 +861,41 @@ CARDS: tuple[ReferenceCard, ...] = (
         "returns an offset object in this version. Pins pandas < 3.",
     ),
     ReferenceCard(
+        id="financedatabase",
+        name="financedatabase",
+        pypi="financedatabase",
+        import_name="financedatabase",
+        archetypes=(_A.LOOKUP,),
+        provenance="Curated classification of 305k financial symbols (112k equities, 36k ETFs, 58k funds, 91k indices, currencies, cryptos) with sector/industry/exchange/ISIN",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="100 KB code + ~20 MB bz2 CSV data (one-time fetch)",
+        native_deps="none",
+        license="MIT",
+        questions=(
+            Question("Sector of AAPL?", "Information Technology", "verified", "test_financedatabase"),
+            Question("Base/quote of EURUSD=X?", "EUR / USD", "verified", "test_financedatabase"),
+        ),
+        notes="Default mode re-downloads CSVs from GitHub per instantiation; "
+        "use use_local_location=True after `uv run python "
+        "scripts/fetch_financedatabase.py` (data -> <site-packages>/compression/). "
+        "Symbol is the DataFrame index, not a column: use .data.loc['AAPL']. "
+        "search() with no match returns the ENTIRE table (do not print it). "
+        "Heavy transitive deps (scikit-learn, yfinance) via financetoolkit.",
+        example=(
+            "from financedatabase import Equities, Currencies\n"
+            "\n"
+            "# data must be fetched once: uv run python scripts/fetch_financedatabase.py\n"
+            "eq = Equities(use_local_location=True)\n"
+            "aapl = eq.data.loc['AAPL']  # symbol is the index, not a column\n"
+            "# golden: aapl['sector'] == 'Information Technology'\n"
+            "cur = Currencies(use_local_location=True)\n"
+            "pair = cur.data.loc['EURUSD=X']\n"
+            "# golden: (pair['base_currency'], pair['quote_currency']) == ('EUR', 'USD')\n"
+        ),
+    ),
+    ReferenceCard(
         id="chemicals",
         name="chemicals",
         pypi="chemicals",

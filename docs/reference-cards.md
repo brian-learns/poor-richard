@@ -119,7 +119,7 @@ verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (42 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (43 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -163,6 +163,7 @@ Source of truth: `poor_richard.registry.CARDS` (42 entries incl. the auxiliary).
 | charset-normalizer | charset-normalizer | validate | ⚙ verified | 1.1 MB | MIT |
 | idna | idna | convert | ⚙ verified | 428 KB | BSD-3 |
 | pandas-market-calendars | pandas-market-calendars | temporal | ⚙ verified | 1.1 MB | MIT |
+| financedatabase | financedatabase | lookup | ⚙ verified (data fetched) | 100 KB + 20 MB data | MIT |
 | chemicals | chemicals | lookup | ⚙ verified | 73 MB | MIT |
 | pysweph | pysweph | compute | ⚙ verified | 2 MB | AGPL-2.0 |
 | networkx *(auxiliary)* | networkx | — | ⚙ verified | 13 MB | BSD-3 |
