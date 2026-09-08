@@ -85,16 +85,15 @@ machine-parseable output with real exit codes (`--ask`'s `<score> <id>`
 lines are already right). (3) The `--ask` → `--example` pipeline as the
 canonical two-step: pointer, then conventional code he can adapt.
 
-**Candidate features.** A **shippable SKILL.md** — e.g.
-`skills/poor-richard/SKILL.md` in this repo, installable into any hax-style
-agent's skill directory. Its description line would enumerate the domains
-(ISO codes, physical constants, unit conversions, holiday/business-day
-calendars, celestial ephemerides, identifier validation, chemical data) and
-its body would be the two-step pipeline plus the gotchas ("answers are
-verified offline; prefer the example's call pattern over your own memory of
-the API"). This is the one feature that exists *purely* for Hank's
-extension model — nothing about it helps Noah or Broman, and nothing short
-of it makes Poor Richard visible to him.
+**Candidate features.** A **shippable SKILL.md** — now exists at
+`src/poor_richard/.agents/skills/poor-richard/SKILL.md` (hax/agents
+convention, ships inside the package): the description line enumerates the
+domains, the body is the `--ask` → `--example` pipeline plus "prefer the
+example's call pattern over your own memory of the API" and the gotchas.
+This is the one feature that exists *purely* for Hank's extension model —
+nothing about it helps Noah or Broman, and nothing short of it makes Poor
+Richard visible to him. Remaining work: install it into a test agent's
+skill directory and run the cold-vs-warm discovery A/B from the test plan.
 
 ## Broman — a human who likes reference information
 
@@ -146,7 +145,7 @@ gotchas are content for him, metadata for the others.
 
 | Capability | Noah (Python) | Hank (shell+skills) | Broman (human) | Status |
 |---|---|---|---|---|
-| Discovery | `search()` | `--ask` (+ SKILL.md to know it exists) | bare table, docs | shipped / skill candidate |
+| Discovery | `search()` | `--ask` (+ SKILL.md to know it exists) | bare table, docs | shipped (skill in repo; install into agent = candidate) |
 | Verified answer | `question.expected` | `--example` golden comments | same | shipped; `--answer` candidate |
 | Full card record | `get(id)` | `poor-richard card <id>` | same | Python shipped; CLI candidate |
 | Conventional call | `card.example`, `--example` | `--example` | `--example` | shipped |

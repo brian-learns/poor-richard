@@ -22,6 +22,9 @@ hallucinated or web-fetched ones.
   (8 tasks, scoring grid, known hazards)
 - `src/poor_richard/registry.py` — the machine-readable reference cards
   (provenance, update model, offline status, footprint, license, golden questions)
+- `src/poor_richard/.agents/skills/poor-richard/SKILL.md` — the agent skill
+  (hax/agents convention): how a shell- or session-based agent uses the
+  almanack; ships inside the package
 - `src/poor_richard/tests/test_golden.py` — the golden questions; every test runs
   with the network blocked (`tests/conftest.py`). Lives inside the package so the
   wheel ships it (it backs `poor-richard --example`).

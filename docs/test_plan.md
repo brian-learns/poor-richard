@@ -147,9 +147,10 @@ prioritized trigger list for card-text fixes and the keyword field.
   likely setup failure.
 - **ephem 4.2.1 moon bug** — any task drift toward lunar positions can
   surface the xfail canary; steer testers back to T5's sun or to astropy.
-- **Hank has no SKILL.md yet** — cold discovery may fail for him purely for
-  lack of a pointer; that failure mode is the justification for the skill,
-  so record it distinctly from "found the almanack but picked the wrong card".
+- **The SKILL.md exists in the repo but is not installed into the test
+  agent's skill directory** — run Hank cold first (no skill), then warm
+  (skill installed); that A/B measures the skill's discovery value. Record a
+  cold failure distinctly from "found the almanack but picked the wrong card".
 - **First-run cost** — 43 dependencies make fresh-environment setup slow;
   pre-build the wheel and venv before the session starts, and note the wall
   time anyway (it is a real adoption number).
