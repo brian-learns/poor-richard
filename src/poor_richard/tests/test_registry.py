@@ -75,6 +75,32 @@ def test_verified_questions_have_tests():
                 assert callable(getattr(tg, q.test_id)), f"{card.id}: {q.test_id} not callable"
 
 
+def test_verified_answers_pinned_in_golden_tests():
+    """Every verified question is pinned in its golden test via ``_expected``.
+
+    Golden tests pin the registry's ``expected`` answer strings to the
+    literals they prove, so a data edit in registry.py that drifts from the
+    standard fails the suite; this check keeps the pin mandatory.
+    """
+    tree = ast.parse(Path(__file__).with_name("test_golden.py").read_text())
+    funcs = {n.name: n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)}
+    for card in CARDS:
+        for q in card.questions:
+            if q.status != "verified":
+                continue
+            fn = funcs.get(q.test_id)
+            assert fn is not None, f"{card.id}: no test function {q.test_id}"
+            literals = {
+                n.value
+                for n in ast.walk(fn)
+                if isinstance(n, ast.Constant) and isinstance(n.value, str)
+            }
+            assert q.question in literals, (
+                f"{card.id}: {q.question!r} not pinned in {q.test_id}; "
+                f"add an _expected() assert"
+            )
+
+
 def test_registry_matches_pyproject():
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
     deps = {d.split("==")[0].split(">=")[0].split("<=")[0].strip() for d in pyproject["project"]["dependencies"]}

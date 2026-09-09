@@ -75,12 +75,18 @@ def test_<card_id>():
                              # fetches at import time must fail loudly here
     ...
     assert ...
+    assert _expected("<card_id>", "<question>") == "<expected>"   # one pin per question
 ```
 
 Conventions:
 
 - The autouse `no_network` fixture in `tests/conftest.py` blocks sockets for
   every test — a PASS means correct **and** offline. Don't weaken it.
+- **Pin the registry answer.** One `_expected(card, question)` assert per
+  verified question, in the same test, tying the card's `expected` string to
+  the value you just proved (reference-cards.md §4, "Answer pinning"). This
+  is what catches a registry data edit that drifts from the standard — the
+  pycountry alpha-3 bug slipped through because nothing compared the two.
 - **Data-dependent libraries** (system libs, one-time downloads): *skip* when
   the data is absent, never fetch in the test. Precedents: `test_postal`
   (skips without system `libpostal.so.1`) and `test_financedatabase` (skips
@@ -128,8 +134,8 @@ uv build                          # wheel still builds (tests ship inside)
 ```
 
 The integrity tests do most of the checking for you: unique ids, importable
-names, verified-question↔test linkage, pyproject↔card sync, example
-availability.
+names, verified-question↔test linkage, answer pinning, pyproject↔card sync,
+example availability.
 
 ## 8. Commit
 

@@ -84,6 +84,12 @@ question is a triple:
    e.g. the IBAN spec's example, CODATA, the IANA tz database — not from the
    library's own docs), with a tight tolerance for floats.
 
+**Answer pinning.** Each golden test also pins the registry's `expected`
+strings: one `_expected(card, question)` assert per verified question, in the
+same test, so an edit to `registry.py` data that drifts from the proven value
+fails the suite. `test_registry.py` enforces that every verified question is
+pinned.
+
 **Offline enforcement.** `src/poor_richard/tests/conftest.py` installs an autouse
 fixture that patches `socket.connect`, `socket.socket.connect_ex`, and
 `socket.getaddrinfo` to raise for **every test**, so `uv run pytest` runs fully
@@ -99,7 +105,8 @@ means the specific golden path is offline and correct.
 2. Pick 1–5 questions spanning the library's archetypes; get expected values from
    the standard, not the package docs.
 3. Add a `test_<card_id>()` function to `src/poor_richard/tests/test_golden.py`
-   (imports inside the function so import-time network fetches are caught).
+   (imports inside the function so import-time network fetches are caught),
+   with an `_expected()` pin assert per question.
 4. Add/extend the card in `poor_richard/registry.py` with the questions,
    `status="verified"`, `test_id="test_<card_id>"`.
 5. Run `uv run pytest`; on failure, fix the *test's* API usage or expected value —

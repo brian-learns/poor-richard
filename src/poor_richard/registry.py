@@ -97,7 +97,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="LGPL-2.1",
         questions=(
-            Question("ISO 3166-1 alpha-3 for France?", "France", "verified", "test_pycountry"),
+            Question("ISO 3166-1 alpha-3 for France?", "FRA", "verified", "test_pycountry"),
             Question("ISO 4217 name for JPY?", "Yen", "verified", "test_pycountry"),
             Question("ISO 639-1 'de' language name?", "German", "verified", "test_pycountry"),
         ),

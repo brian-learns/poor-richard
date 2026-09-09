@@ -4,7 +4,9 @@ Each test answers one natural-language question with the API of a carded
 library and asserts the independently known-correct value (from the standard
 itself, not the package's docs). Test function names are the ``test_id``
 referenced by the verified questions in ``poor_richard.registry.CARDS``;
-``tests/test_registry.py`` enforces the linkage.
+``tests/test_registry.py`` enforces the linkage. Each golden test also pins
+the registry's ``expected`` answer strings via ``_expected()`` in the same
+test, so data drift in ``poor_richard/registry.py`` fails the suite.
 
 All tests run with the network blocked (see tests/conftest.py).
 """
@@ -17,6 +19,17 @@ from pathlib import Path
 
 import pytest
 
+from poor_richard.registry import get
+
+
+def _expected(card: str, question: str) -> str:
+    """The registry's golden answer for a card's question (data under test)."""
+    for q in get(card).questions:
+        if q.question == question:
+            return q.expected
+    raise AssertionError(f"{card}: unknown golden question {question!r}")
+
+
 # --------------------------------------------------------------------- geo
 
 
@@ -26,6 +39,9 @@ def test_pycountry():
     assert pycountry.countries.get(alpha_3="FRA").name == "France"
     assert pycountry.currencies.get(alpha_3="JPY").name == "Yen"
     assert pycountry.languages.get(alpha_2="de").name == "German"
+    assert _expected("pycountry", "ISO 3166-1 alpha-3 for France?") == "FRA"
+    assert _expected("pycountry", "ISO 4217 name for JPY?") == "Yen"
+    assert _expected("pycountry", "ISO 639-1 'de' language name?") == "German"
 
 
 def test_iso639():
@@ -34,6 +50,7 @@ def test_iso639():
     de = next(l for l in iso639.ALL_LANGUAGES if l.part1 == "de")
     assert de.part3 == "deu"  # ISO 639-3; 639-2/B is "ger"
     assert de.name == "German"
+    assert _expected("python-iso639", "ISO 639-3 code for ISO 639-1 'de'?") == "deu (639-2/B is 'ger')"
 
 
 def test_countryinfo():
@@ -42,6 +59,7 @@ def test_countryinfo():
     jp = countryinfo.CountryInfo("jp")
     assert jp.name() == "Japan"
     assert jp.capital() == "Tokyo"
+    assert _expected("countryinfo", "Capital of Japan?") == "Tokyo"
 
 
 def test_timezonefinder():
@@ -51,6 +69,7 @@ def test_timezonefinder():
     assert tf.timezone_at(lng=2.3522, lat=48.8566) == "Europe/Paris"
     assert tf.timezone_at(lng=-74.0060, lat=40.7128) == "America/New_York"
     assert tf.timezone_at(lng=139.6917, lat=35.6895) == "Asia/Tokyo"
+    assert _expected("timezonefinder", "IANA zone for (48.8566, 2.3522)?") == "Europe/Paris"
 
 
 class LibpostalMissing(Exception):
@@ -94,6 +113,7 @@ def test_postal():
     assert r["state"] == "dc"
     assert r["postcode"] == "20500"
     assert any("northwest" in alt for alt in expand_address("1600 Penn Ave NW"))
+    assert _expected("postal", "Parse '1600 Pennsylvania Avenue NW, Washington, DC 20500' (US)?") == "house_number=1600, road=pennsylvania avenue nw, city=washington, state=dc, postcode=20500"
 
 # ----------------------------------------------------------- physics/units
 
@@ -102,6 +122,7 @@ def test_scipy_constants():
     import scipy.constants as sc
 
     assert sc.c == 299792458.0  # exact by definition (SI)
+    assert _expected("scipy.constants", "Speed of light in vacuum, m/s?") == "299792458 (exact by definition)"
 
 
 def test_astropy_constants():
@@ -113,6 +134,7 @@ def test_astropy_constants():
     assert abs(G.value - 6.67430e-11) < 2 * G.uncertainty
     assert 0 < G.uncertainty < 1e-14
     assert G.unit.is_equivalent(u.m**3 / u.kg / u.s**2)
+    assert _expected("astropy.constants", "Gravitational constant G?") == "6.67430(15)e-11 m^3 kg^-1 s^-2 (CODATA 2018)"
 
 
 def test_pint():
@@ -120,6 +142,7 @@ def test_pint():
 
     u = pint.UnitRegistry()
     assert u.Quantity(1, "kWh").to("joule").magnitude == 3_600_000.0
+    assert _expected("pint", "1 kWh in joules?") == "3.6e6 J"
 
 
 def test_chemformula():
@@ -129,6 +152,7 @@ def test_chemformula():
     assert dict(f.element) == {"H": 2, "S": 1, "O": 4}
     # 2*1.008 + 32.06 + 4*15.999 (IUPAC weights)
     assert abs(f.formula_weight - 98.072) < 0.01
+    assert _expected("chemformula", "Composition and formula weight of H2SO4?") == "H:2 S:1 O:4, 98.072 g/mol"
 
 
 def test_periodictable():
@@ -137,6 +161,7 @@ def test_periodictable():
     assert pt.Fe.number == 26
     assert abs(pt.Fe.mass - 55.845) < 0.01
     assert pt.U.number == 92 and pt.U.name == "uranium"
+    assert _expected("periodictable", "Fe atomic number and mass?") == "26 / 55.845"
 
 
 def test_uncertainties():
@@ -146,6 +171,7 @@ def test_uncertainties():
     assert abs(r.nominal_value - 6.0) < 1e-9
     # independent errors: sigma = 6 * sqrt((0.1/2)^2 + (0.1/3)^2) ~= 0.3606
     assert abs(r.std_dev - 0.36055) < 1e-4
+    assert _expected("uncertainties", "(2.0 +/- 0.1) * (3.0 +/- 0.1)?") == "6.0 +/- 0.3606 (independent errors)"
 
 # -------------------------------------------------------- temporal/financial
 
@@ -156,12 +182,14 @@ def test_holidays():
     us = holidays.US(years=2025)
     assert "2025-07-04" in us
     assert us.get("2025-07-04") == "Independence Day"
+    assert _expected("holidays", "Is 2025-07-04 a US holiday?") == "True (Independence Day)"
 
 
 def test_dateutil():
     from dateutil.parser import parse
 
     assert parse("20250615T093000Z") == datetime(2025, 6, 15, 9, 30, tzinfo=timezone.utc)
+    assert _expected("python-dateutil", "Parse '20250615T093000Z'?") == "2025-06-15 09:30:00+00:00"
 
 
 def test_workalendar():
@@ -170,6 +198,7 @@ def test_workalendar():
     cal = UnitedStates()
     assert not cal.is_working_day(date(2025, 12, 25))  # Christmas
     assert cal.add_working_days(date(2025, 12, 25), 1) == date(2025, 12, 26)
+    assert _expected("workalendar", "Next US working day after 2025-12-25?") == "2025-12-26"
 
 
 def test_iso4217():
@@ -178,6 +207,8 @@ def test_iso4217():
     assert iso4217.raw_table["JPY"]["CcyMnrUnts"] == "0"
     assert iso4217.raw_table["USD"]["CcyNm"] == "US Dollar"
     assert iso4217.Currency.usd.value == "USD"
+    assert _expected("iso4217", "Minor-unit decimals for JPY?") == "0"
+    assert _expected("iso4217", "ISO 4217 name for USD?") == "US Dollar"
 
 # ---------------------------------------------------------------- validate
 
@@ -194,6 +225,9 @@ def test_stdnum():
     assert luhn.is_valid("4111111111111111")
     assert not luhn.is_valid("4111111111111112")
     assert isbn.is_valid("9783161484100")
+    assert _expected("python-stdnum", "Is IBAN DE89370400440532013000 valid?") == "yes (spec example)"
+    assert _expected("python-stdnum", "Does 4111111111111111 pass Luhn?") == "yes"
+    assert _expected("python-stdnum", "Is ISBN-13 9783161484100 valid?") == "yes"
 
 
 def test_phonenumbers():
@@ -204,6 +238,7 @@ def test_phonenumbers():
     assert phonenumbers.is_valid_number(p)
     assert phonenumbers.region_code_for_number(p) == "DE"
     assert phonenumbers.number_type(p) == phonenumbers.PhoneNumberType.FIXED_LINE
+    assert _expected("phonenumbers", "Parse +493012345678 (DE)?") == "country_code=49, region=DE, type=FIXED_LINE"
 
 # --------------------------------------------------------------------- io
 
@@ -231,6 +266,7 @@ def test_python_magic():
 
     assert magic.from_buffer(_minimal_png(), mime=True) == "image/png"
     assert magic.from_buffer(b"%PDF-1.4\n1 0 obj\n<<>>\nendobj\n", mime=True) == "application/pdf"
+    assert _expected("python-magic", "MIME of a minimal valid PNG?") == "image/png"
 
 
 def test_filetype():
@@ -240,6 +276,7 @@ def test_filetype():
     assert kind is not None and kind.mime == "image/png"
     kind = filetype.guess(b"%PDF-1.4\n")
     assert kind is not None and kind.mime == "application/pdf"
+    assert _expected("filetype", "Format of 89 50 4E 47 0D 0A 1A 0A ...?") == "image/png"
 
 
 def test_tldextract():
@@ -248,6 +285,7 @@ def test_tldextract():
     ext = TLDExtract(suffix_list_urls=())  # bundled PSL snapshot only
     r = ext("www.example.co.uk")
     assert (r.subdomain, r.domain, r.suffix) == ("www", "example", "co.uk")
+    assert _expected("tldextract", "Public suffix of www.example.co.uk?") == "co.uk"
 
 
 def test_user_agents():
@@ -259,6 +297,7 @@ def test_user_agents():
     )
     assert ua.device.family == "iPhone"
     assert ua.os.family == "iOS"
+    assert _expected("user-agents", "Parse an iPhone Safari 17 user-agent string?") == "device=iPhone, os=iOS"
 
 # -------------------------------------------------------------- astronomy
 
@@ -269,6 +308,7 @@ def test_skyfield():
     ts = load.timescale()
     # J2000.0 epoch: TT = 2451545.0 + 64.184 s (TT-UTC at the epoch)
     assert abs(ts.utc(2000, 1, 1, 12.0).tt - 2451545.0007429) < 1e-5
+    assert _expected("skyfield", "TT Julian date at the J2000.0 epoch?") == "2451545.0007429 (TT-UTC = 64.184 s)"
 
 
 def test_ephem_j2000_anchor():
@@ -276,6 +316,7 @@ def test_ephem_j2000_anchor():
 
     # float(Date) = JD - 2415020.0 (JD of 1900-01-01 12:00 UT); J2000 is exact
     assert float(ephem.Date("2000/1/1 12:00:00")) + 2415020.0 == 2451545.0
+    assert _expected("ephem", "Julian date anchor: float(Date('2000/1/1 12:00:00')) + 2415020.0?") == "2451545.0 (J2000, exact)"
 
 
 @pytest.mark.xfail(
@@ -314,6 +355,7 @@ def test_sgp4():
     # subpoint latitude can never exceed the orbital inclination
     sublat = math.degrees(math.asin(r[2] / radius))
     assert abs(sublat) <= math.degrees(satrec.inclo) + 0.5
+    assert _expected("sgp4", "ISS (TLE 25544, 2008) altitude at TLE epoch?") == "342 km (within 300-450 km LEO band)"
 
 
 def test_astral():
@@ -324,6 +366,7 @@ def test_astral():
     sunrise = sunrise(obs, date(2025, 6, 21))  # UTC by default
     # ~05:25 EDT on the June solstice = ~09:25 UTC at ~-74 deg longitude
     assert 9.0 <= sunrise.hour <= 10 and sunrise.tzinfo is not None
+    assert _expected("astral", "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?") == "09:25 UTC (~05:25 EDT, June solstice)"
 
 # ------------------------------------------------------------------ colour
 
@@ -337,6 +380,7 @@ def test_colour():
     assert abs(lab[0] - 53.23) < 0.5
     assert abs(lab[1] - 80.09) < 0.5
     assert abs(lab[2] - 67.20) < 0.5
+    assert _expected("colour-science", "sRGB pure red -> CIE Lab?") == "(53.23, 80.09, 67.20)"
 
 # --------------------------------------------------------------------- bio
 
@@ -349,6 +393,7 @@ def test_biopython():
     assert tbl.forward_table["ATG"] == "M"
     assert "TAA" in tbl.stop_codons
     assert str(Seq("ATGGCT").translate()) == "MA"
+    assert _expected("biopython", "Codon ATG in the standard code?") == "M (methionine); TAA is a stop"
 
 # ------------------------------------------------------- new candidate tier
 
@@ -360,6 +405,7 @@ def test_isodate():
     d = isodate.parse_duration("P1Y2M3DT4H5M6S")
     # Duration: years/months/days are ints; seconds is the total time seconds
     assert (d.years, d.months, d.days, d.seconds) == (1, 2, 3, 4 * 3600 + 5 * 60 + 6)
+    assert _expected("isodate", "Parse ISO 8601 duration 'P1Y2M3DT4H5M6S'?") == "1y 2m 3d 4h 5m 6s"
 
 
 def test_mimeparse():
@@ -371,6 +417,7 @@ def test_mimeparse():
         "html",
         {"charset": "utf-8"},
     )
+    assert _expected("mimeparse", "Parse 'text/html; charset=utf-8'?") == "(text, html, {charset: utf-8})"
 
 
 def test_molmass():
@@ -380,6 +427,7 @@ def test_molmass():
     assert abs(molmass.Formula("H2O").mass - 18.015) < 0.01
     # glucose C6H12O6 = 6*12.011 + 12*1.008 + 6*15.999 = 180.156
     assert abs(molmass.Formula("C6H12O6").mass - 180.156) < 0.02
+    assert _expected("molmass", "Molar mass of H2O?") == "18.015 g/mol"
 
 
 def test_mido(tmp_path):
@@ -398,6 +446,7 @@ def test_mido(tmp_path):
         ("note_on", 60, 64),
         ("note_off", 60, 64),
     ]
+    assert _expected("mido", "Round-trip a note_on(60)/note_off(60) MIDI file?") == "messages preserved on reload"
 
 
 def test_particle():
@@ -409,6 +458,7 @@ def test_particle():
     assert abs(mu.mass - 105.6583755) < 0.01
     e = Particle.from_pdgid(11)
     assert abs(e.mass - 0.51099895) < 0.001
+    assert _expected("particle", "Particle with PDG code 13?") == "mu-, mass 105.6583755 MeV"
 
 
 def test_geographiclib():
@@ -417,6 +467,7 @@ def test_geographiclib():
     # Paris (48.8566, 2.3522) -> London (51.5074, -0.1278): ~343.9 km
     r = Geodesic.WGS84.Inverse(48.8566, 2.3522, 51.5074, -0.1278)
     assert abs(r["s12"] - 343923.0) < 1000.0
+    assert _expected("geographiclib", "Great-circle distance Paris -> London?") == "343.9 km"
 
 
 def test_bizdays():
@@ -425,6 +476,7 @@ def test_bizdays():
     # bridges to pandas_market_calendars via the PMC/ prefix
     cal = bizdays.Calendar.load("PMC/XNYS")
     assert cal.adjust_next(date(2025, 12, 25)) == date(2025, 12, 26)  # skip Christmas
+    assert _expected("bizdays", "Next XNYS business day after 2025-12-25?") == "2025-12-26"
 
 
 def test_charset_normalizer():
@@ -432,6 +484,7 @@ def test_charset_normalizer():
 
     assert cn.from_bytes("héllo wörld, façade, naïve".encode("utf-8")).best().encoding == "utf_8"
     assert cn.from_bytes(b"plain ascii text, no accents at all").best().encoding == "ascii"
+    assert _expected("charset-normalizer", "Encoding of a UTF-8 accented string?") == "utf_8"
     # single-byte family (cp125x) detection is ambiguous for short samples;
     # only the unambiguous cases are golden-tested
 
@@ -441,6 +494,7 @@ def test_idna():
 
     assert idna.encode("例え.jp") == b"xn--r8jz45g.jp"
     assert idna.decode("xn--r8jz45g.jp") == "例え.jp"
+    assert _expected("idna", "IDNA-encode the domain 例え.jp?") == "xn--r8jz45g.jp"
 
 
 def test_pandas_market_calendars():
@@ -450,6 +504,7 @@ def test_pandas_market_calendars():
     days = [d.date() for d in xnys.valid_days("2025-12-24", "2025-12-31")]
     # no Christmas (12/25), no weekends (12/27-28)
     assert days == [date(2025, 12, d) for d in (24, 26, 29, 30, 31)]
+    assert _expected("pandas-market-calendars", "XNYS valid sessions 2025-12-24..31?") == "24, 26, 29, 30, 31 (no Christmas, no weekends)"
 
 
 def test_chemicals():
@@ -457,6 +512,7 @@ def test_chemicals():
 
     # water, CAS 7732-18-5
     assert abs(MW("7732-18-5") - 18.0153) < 0.001
+    assert _expected("chemicals", "Molecular weight of water (CAS 7732-18-5)?") == "18.0153 g/mol"
 
 # ------------------------------------------------------------------ hybrid
 
@@ -477,6 +533,7 @@ def test_starfile(tmp_path):
     assert list(blk.columns) == ["pixel.x", "pixel.y", "pixel.intensity"]
     assert blk["pixel.x"].tolist() == [1.0, 3.0]
     assert "loop_" in starfile.to_string(blk)
+    assert _expected("starfile", "Parse a .star file with a 2-row pixel array?") == "columns pixel.x/pixel.y/pixel.intensity, values round-trip"
 
 
 def test_czml3():
@@ -495,6 +552,7 @@ def test_czml3():
         4785512.491172238,
         5338712.263513341,
     ]
+    assert _expected("czml3", "Generate a CZML packet with one position sample?") == "{'id': ..., 'position': {'epoch': ..., 'cartesian': [x, y, z]}}"
 
 
 def test_pysweph():
@@ -517,6 +575,7 @@ def test_pysweph():
     assert abs(m_lon - 313.46463) < 0.01
     assert abs(m_lat - (-3.16)) < 0.01
     assert abs(m_dist - 0.002581) < 1e-4
+    assert _expected("pysweph", "Sun ecliptic longitude 2025-06-15 12:00 UTC?") == "84.641 deg (JD 2460842.0, just under the 90 deg solstice)"
 
 
 def test_financedatabase():
@@ -534,3 +593,5 @@ def test_financedatabase():
     cur = financedatabase.Currencies(use_local_location=True)
     pair = cur.data.loc["EURUSD=X"]
     assert (pair["base_currency"], pair["quote_currency"]) == ("EUR", "USD")
+    assert _expected("financedatabase", "Sector of AAPL?") == "Information Technology"
+    assert _expected("financedatabase", "Base/quote of EURUSD=X?") == "EUR / USD"
