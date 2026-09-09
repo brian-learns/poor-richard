@@ -62,6 +62,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "pipdeptree>=4.2.5",
     "pytest>=9.1.1",
 ]
 
