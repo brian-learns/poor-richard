@@ -155,6 +155,12 @@ def test_search_topics():
     assert search("business days NYSE")[0][1].id == "bizdays"
 
 
+def test_search_keywords():
+    # issue #2: curated keywords field folded into the search corpus
+    assert search("convert temperature celsius fahrenheit", top=1)[0][1].id == "pint"
+    assert search("holiday calendar NYSE", top=1)[0][1].id == "bizdays"
+
+
 def test_search_exact_id_wins():
     res = search("bizdays", top=1)
     assert res and res[0][1].id == "bizdays" and res[0][0] >= 1.0

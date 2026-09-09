@@ -76,6 +76,7 @@ class ReferenceCard:
     questions: tuple[Question, ...]
     notes: str = ""
     example: str = ""  # curated snippet; empty => derive from the golden test
+    keywords: str = ""  # curated search tokens (issue #2); folded into _card_text
 
 
 _A = Archetype
@@ -109,6 +110,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         import_name="iso639",
         archetypes=(_A.LOOKUP, _A.CONVERT),
         provenance="ISO 639-1/2/3 (SIL International registry)",
+        keywords="three letter macrolanguage bibliographic terminological",
         update_model=_U.SNAPSHOT,
         offline=True,
         offline_verified=True,
@@ -236,6 +238,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         import_name="pint",
         archetypes=(_A.CONVERT, _A.COMPUTE),
         provenance="curated unit registry (SI, NIST, historical, information units)",
+        keywords="temperature celsius fahrenheit kelvin degree unit conversion",
         update_model=_U.SNAPSHOT,
         offline=True,
         offline_verified=True,
@@ -381,6 +384,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         import_name="stdnum",
         archetypes=(_A.VALIDATE,),
         provenance="ISO/IEC 7812-1 (Luhn), ISO 13616 (IBAN), ISO 21047 (ISBN), GS1 (EAN/UPC), plus VIN, national IDs",
+        keywords="credit card luhn ean upc vin checksum",
         update_model=_U.SNAPSHOT,
         offline=True,
         offline_verified=True,
@@ -555,6 +559,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         import_name="astral",
         archetypes=(_A.COMPUTE, _A.TEMPORAL),
         provenance="Meeus, Astronomical Algorithms",
+        keywords="sunrise sunset twilight day length",
         update_model=_U.ALGORITHMIC,
         offline=True,
         offline_verified=True,
@@ -796,6 +801,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         import_name="bizdays",
         archetypes=(_A.TEMPORAL,),
         provenance="bundled exchange holiday calendars + bridge to pandas_market_calendars",
+        keywords="NYSE XNYS exchange business day trading",
         update_model=_U.SNAPSHOT,
         offline=True,
         offline_verified=True,
@@ -1014,7 +1020,7 @@ def _tokens(text: str) -> set[str]:
 
 
 def _card_text(card: ReferenceCard) -> str:
-    parts = [card.name, card.pypi, card.import_name, card.provenance, card.notes]
+    parts = [card.name, card.pypi, card.import_name, card.provenance, card.keywords, card.notes]
     parts += [f"{q.question} {q.expected}" for q in card.questions]
     return " ".join(parts)
 

@@ -123,15 +123,18 @@ that every card has one or the other.
 
 **Agent-facing lookup.** `poor-richard --ask "<query>"` (or
 `poor_richard.search(query)`) is the fuzzy front door: it ranks cards by
-query-token coverage of question text, provenance, and notes, plus a
-`difflib` name-similarity bonus (typos like `color` → `colour-science`).
+query-token coverage of question text, provenance, notes, and a small curated
+`keywords` field (standard-specific terms the docs never use, e.g. `celsius`
+for pint; issue #2), plus a `difflib` name-similarity bonus (typos like
+`color` → `colour-science`).
 The CLI prints one `<score> <card id>` line per match — a pointer, not an
 answer; `search()` additionally returns the matched question and its
 verified answer for programmatic use. Stdlib only, fully offline; a small
 stoplist and naive plural folding (`numbers` → `number`) handle the
 paraphrase gap. Card text is therefore curated for discoverability — if a
-natural query misses, fix the card's provenance/notes before adding
-machinery.
+natural query misses, fix the card's provenance/notes/keywords before adding
+machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
+it buries the right cards and churns on every library upgrade).
 
 **Status (2026-09):** all 43 cards have passing offline golden examples; 48
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
