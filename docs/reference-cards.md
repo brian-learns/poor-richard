@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 43 cards have passing offline golden examples; 48
+**Status (2026-09):** all 44 cards have passing offline golden examples; 52
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (43 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (44 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -171,6 +171,7 @@ Source of truth: `poor_richard.registry.CARDS` (43 entries incl. the auxiliary).
 | ephem | ephem | compute | ⚙ anchor / ⚠ phase bug | small C ext | LGPL |
 | sgp4 | sgp4 | compute | ⚙ verified | 704 KB | MIT |
 | astral | astral | compute, temporal | ⚙ verified | 244 KB | Apache-2.0 |
+| pymeeus | pymeeus | compute, temporal | ⚙ verified | 3.0 MB (sdist only) | LGPL-3.0 |
 | colour-science | colour-science | convert, compute | ⚙ verified | 95 MB (76 MB htmlcov artifact) | BSD-3 |
 | biopython | biopython | lookup, compute | ⚙ verified | 17 MB | BSD-3 |
 | starfile | starfile | parse | ⚙ verified | 40 KB | BSD-3 |
@@ -261,3 +262,9 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     Without the `.se1/.se2` data files it falls back to the built-in Moshier
     ephemeris (arcsecond-class — cross-checked vs astropy/JPL to <2″); the
     fallback is announced in the returned warning string.
+19. **`pymeeus` module/class name collision** — `from pymeeus import Sun`
+    imports the *module*; the class is `pymeeus.Sun.Sun` (same for `Moon`),
+    and `Epoch` comes from `pymeeus.Epoch`. `Angle` objects convert via
+    `float()`. Epoch defaults to TT; `utc=True` applies TT−UTC = 69.184 s for
+    2025 (its leap table is frozen at 2017 — still correct until the next
+    leap second; pass `leap_seconds=` beyond that).

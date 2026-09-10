@@ -593,6 +593,36 @@ CARDS: tuple[ReferenceCard, ...] = (
         notes="v3.x: Observer(latitude, longitude) + astral.sun.sunrise(observer, date); "
         "the v2 Sun class is gone.",
     ),
+    ReferenceCard(
+        id="pymeeus",
+        name="pymeeus (PyMeeus)",
+        pypi="pymeeus",
+        import_name="pymeeus",
+        archetypes=(_A.COMPUTE, _A.TEMPORAL),
+        provenance="Meeus, Astronomical Algorithms (2nd ed.): abridged VSOP87 solar theory, ELP2000 lunar theory",
+        keywords="obliquity nutation aberration precession libration",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="3.0 MB (sdist only, no wheel)",
+        native_deps="none",
+        license="LGPL-3.0",
+        questions=(
+            Question("Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?", "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)", "verified", "test_pymeeus"),
+            Question("Moon geocentric ecliptic position 2025-06-15 12:00 UTC?", "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)", "verified", "test_pymeeus"),
+            Question("2025 spring equinox (UTC)?", "2025-03-20 09:01:28 (published 09:01:54 UTC)", "verified", "test_pymeeus"),
+            Question("Julian date of the J2000.0 epoch?", "2451545.0 (2000-01-01 12:00 TT, exact by definition)", "verified", "test_pymeeus"),
+        ),
+        notes="Module and class share names: `from pymeeus import Sun` gives the MODULE; "
+        "the class is `pymeeus.Sun.Sun` (same for Moon), and Epoch is "
+        "`from pymeeus.Epoch import Epoch`. Angles convert with float() (no .deg()); "
+        "Sun.apparent_geocentric_position -> (lon, lat, r_au); "
+        "Moon.geocentric_ecliptical_pos -> (lon, lat, dist_km, parallax). "
+        "Epoch defaults to TT; for UTC input use utc=True (internal leap table "
+        "frozen at 2017: TAI-UTC = 37 s, still correct until the next leap "
+        "second). sdist-only package, last release 2022. The 228.8 deg moon "
+        "elongation is the independent oracle behind the ephem xfail canary.",
+    ),
     # ---------------------------------------------------------------- color
     ReferenceCard(
         id="colour-science",

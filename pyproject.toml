@@ -36,6 +36,7 @@ dependencies = [
     "phonenumbers>=9.0.38",
     "pint>=0.25.3",
     "pycountry>=26.2.16",
+    "pymeeus>=0.5.12",
     "pypostal-multiarch>=1.0.3",
     "pysweph>=2.10.3.6",
     "python-dateutil>=2.9.0.post0",

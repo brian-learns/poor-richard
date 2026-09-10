@@ -368,6 +368,42 @@ def test_astral():
     assert 9.0 <= sunrise.hour <= 10 and sunrise.tzinfo is not None
     assert _expected("astral", "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?") == "09:25 UTC (~05:25 EDT, June solstice)"
 
+
+def test_pymeeus():
+    from pymeeus import Sun, Moon
+    from pymeeus.Epoch import Epoch
+
+    # 2025-06-15 12:00 UTC; utc=True converts to TT (JDE), TT-UTC = 69.184 s
+    e = Epoch(2025, 6, 15, 12, utc=True)
+    slon, slat, sr = Sun.Sun.apparent_geocentric_position(e)
+    # 2.6 days before the June solstice: just under 90 deg; cross-checked
+    # against pysweph (Swiss Ephemeris) to 0.001 deg
+    assert abs(float(slon) - 84.641) < 0.01
+    assert abs(float(slat)) < 0.01
+    assert abs(sr - 1.015725) < 1e-4  # ~1.016 AU, near aphelion (July 4)
+
+    mlon, mlat, mdist, mpar = Moon.Moon.geocentric_ecliptical_pos(e)
+    # cross-checked against pysweph (313.46463 / -3.16); the elongation is
+    # the 228.8 deg that the ephem xfail canary expects (waning gibbous,
+    # 4.5 days past the 2025-06-11 full moon)
+    assert abs(float(mlon) - 313.464) < 0.01
+    assert abs(float(mlat) + 3.157) < 0.01
+    assert abs((float(mlon) - float(slon)) % 360 - 228.82) < 0.1
+    assert 380000 < mdist < 390000  # km, mid-month
+    assert 0.8 < Moon.Moon.illuminated_fraction_disk(e) < 0.9
+
+    # 2025 spring equinox: published 2025-03-20 09:01:54 UTC; JDE is in TT
+    eq = Sun.Sun.get_equinox_solstice(2025, "spring")
+    y, m, d, h, mi, s = eq.get_full_date()
+    assert (y, m, d, h, mi) == (2025, 3, 20, 9, 2) and s < 45
+
+    # J2000.0 anchor: JD 2451545.0 is 2000-01-01 12:00 TT by definition
+    assert Epoch(2451545.0).get_full_date() == (2000, 1, 1, 12, 0, 0.0)
+    assert _expected("pymeeus", "Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?") == "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)"
+    assert _expected("pymeeus", "Moon geocentric ecliptic position 2025-06-15 12:00 UTC?") == "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)"
+    assert _expected("pymeeus", "2025 spring equinox (UTC)?") == "2025-03-20 09:01:28 (published 09:01:54 UTC)"
+    assert _expected("pymeeus", "Julian date of the J2000.0 epoch?") == "2451545.0 (2000-01-01 12:00 TT, exact by definition)"
+
 # ------------------------------------------------------------------ colour
 
 
