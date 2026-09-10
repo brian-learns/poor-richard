@@ -4,12 +4,19 @@ Step-by-step for adding a new reference library. The *why* (archetypes,
 evaluation axes, card schema, golden-question method) lives in
 [reference-cards.md](reference-cards.md); this is the *how*.
 
+If the suite is already red when you start (a previous run died halfway
+through), stop and report it — don't fix unrelated failures or build on
+top of them.
+
 ## 0. Verify the package is real
 
 AI-generated library lists contain hallucinations — `iana-registries` and
 `pybusday` both looked plausible and do not exist on PyPI. Before anything
 else:
 
+- If the task came from a `docs/new/<name>.txt` queue file, the filename is
+  a hint, not authority — the real name comes from this step (the
+  `email-valadator` queue file is `email-validator` on PyPI).
 - Confirm the project page exists and is maintained (recent release, live
   repo, non-abandoned author).
 - Confirm you have the **right PyPI name**. Name collisions have bitten this
@@ -44,6 +51,9 @@ uv add <pypi-name>        # never `uv pip install` — pyproject.toml is the
 
 The registry integrity test enforces 1:1 sync between `pyproject.toml`
 dependencies and cards, so the next step is mandatory, not optional.
+
+Sdist-only packages (pymeeus) build from source on `uv add` — a slow or
+noisy build is not a failure.
 
 ## 3. Golden questions
 
@@ -140,6 +150,9 @@ Add a `ReferenceCard` to `src/poor_richard/registry.py` (grouped by domain):
   If the library produced a lasting gotcha, add it to §7.
 - `reference-libraries.md`: add/refresh the narrative entry in the matching
   section, with the source link and the `uv add` name.
+- If the library was previously listed in `docs/reference-cards.md` §6
+  (candidates not installed) or the `reference-libraries.md` candidates
+  section, remove that row — it's installed now.
 
 ## 7. Verify
 
@@ -148,6 +161,7 @@ uv run pytest                     # full offline suite, including integrity
 uv run poor-richard               # table shows the new card
 uv run poor-richard --example <id>  # example derives (or curated) correctly
 uv run poor-richard --help <id>   # help() resolves through the card
+uv run poor-richard --ask "<domain word>"  # the new card surfaces in search
 uv build                          # wheel still builds (tests ship inside)
 ```
 
@@ -158,5 +172,7 @@ example availability.
 ## 8. Commit
 
 One commit: `uv add`'s pyproject/lock changes, the test, the card, the docs.
-Message pattern: `Add <pkg>: <one-line what/why>` with the interesting
-findings in the body (API breaks, data requirements, license decisions).
+Commit only after the full suite is green — a partial state (dependency
+added, no card yet) leaves the repo red for the next run. Message pattern:
+`Add <pkg>: <one-line what/why>` with the interesting findings in the body
+(API breaks, data requirements, license decisions).
