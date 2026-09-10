@@ -5,7 +5,7 @@ e.g. `stdnum`). Your job: examine that library, then add **5 high-value
 keywords** to its card so that natural-language queries route to it.
 
 **You may only edit `./src/poor_richard/registry.py`.** Do not touch tests,
-docs, other cards, or anything else. All 43 carded libraries are already
+docs, other cards, or anything else. All carded libraries are already
 installed in `./.venv` — do not install anything. Work offline.
 
 ## How search works (so you can judge keyword value)

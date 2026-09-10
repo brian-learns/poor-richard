@@ -83,7 +83,7 @@ What that means for Poor Richard, tentatively:
   `--example` CLI modes are for humans. This is already how the API is
   designed, but it argues for keeping the Python surface clean and
   docstring-rich — in NOOA, docstrings are prompt material the model reads.
-- **The 43 libraries must be importable in the agent's environment.** The
+- **All carded libraries must be importable in the agent's environment.** The
   agent can `import molmass` directly; Poor Richard's added value there is
   *discovery* (which library answers this?), *verified answers* (the
   question/expected pairs), and *API-drift guardrails* (the card `notes` and

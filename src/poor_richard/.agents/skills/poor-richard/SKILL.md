@@ -1,6 +1,6 @@
 ---
 name: poor-richard
-description: Offline almanack of 43 curated Python libraries answering factual questions - ISO country/language/currency codes, physical constants, unit conversions, holiday and exchange business-day calendars, celestial ephemerides, checksum validation (IBAN, ISIN, ISBN, Luhn), chemical and particle data, financial product classification. Use when asked a factual question in these domains and an authoritative offline answer is preferred over a web lookup.
+description: Offline almanack of curated Python libraries answering factual questions - ISO country/language/currency codes, physical constants, unit conversions, holiday and exchange business-day calendars, celestial ephemerides, checksum validation (IBAN, ISIN, ISBN, Luhn), chemical and particle data, financial product classification. Use when asked a factual question in these domains and an authoritative offline answer is preferred over a web lookup.
 ---
 
 # poor-richard
@@ -15,7 +15,8 @@ prefix commands with `uv run`; if the package is installed, call
 ## CLI
 
 ```
-poor-richard                        # table of all 43 cards
+poor-richard                        # table of all cards; prints the current
+                                    # card/question count at the end
 poor-richard --ask "QUERY"          # '<score> <card id>' per line (top 3)
 poor-richard --example [ID ...]     # runnable usage snippet per card
 poor-richard --help ID              # help() text for the module
@@ -46,7 +47,8 @@ card.example             # canonical snippet (curated or derived)
 card = get("bizdays")    # or by_pypi("pandas-market-calendars")
 ```
 
-`CARDS` is a tuple of 43 `ReferenceCard` dataclasses. The almanack is a
+`CARDS` is a tuple of `ReferenceCard` dataclasses (one per card; the current
+count is printed by `poor-richard`). The almanack is a
 catalog and a guardrail: after discovering the right library, import it
 directly for the actual computation.
 
