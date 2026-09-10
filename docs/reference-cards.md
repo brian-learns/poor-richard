@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 47 cards have passing offline golden examples; 66
+**Status (2026-09):** all 48 cards have passing offline golden examples; 71
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (47 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (48 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -170,6 +170,7 @@ Source of truth: `poor_richard.registry.CARDS` (47 entries incl. the auxiliary).
 | filetype | filetype | parse | ⚙ verified | 252 KB | MIT |
 | tldextract | tldextract | parse | ⚙ verified | 452 KB | BSD-3 |
 | user-agents | user-agents | parse | ⚙ verified | 40 KB | MIT |
+| email-validator | email-validator | validate, parse | ⚙ verified | 1.5 MB (incl. dnspython) | Unlicense |
 | skyfield | skyfield | compute, temporal | ⚙ verified | 1.2 MB | MIT |
 | ephem | ephem | compute | ⚙ anchor / ⚠ phase bug | small C ext | LGPL |
 | sgp4 | sgp4 | compute | ⚙ verified | 704 KB | MIT |
@@ -258,25 +259,30 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 17. **GPL exclusions** — `rfc3987` (GPL-3+) and `pysolar` (GPL) are documented
     opt-in candidates, not in the default install; the LGPL set (item 10) is
     the license floor.
-18. **`pysweph` is AGPL-2.0 and not a drop-in for `pyswisseph`** — accepted for
+18. **`email-validator` deliverability checks are live DNS** —
+    `check_deliverability=True` does MX lookups via dnspython (network); the
+    offline golden path uses `check_deliverability=False` (RFC 5322 syntax
+    only). 2.x also dropped the top-level `normalize_email()` — use
+    `validate_email(...).normalized`.
+19. **`pysweph` is AGPL-2.0 and not a drop-in for `pyswisseph`** — accepted for
     this project on maintainer decision (network-copyleft only matters if
     offering it as a network service). API breaks: `calc_ut` returns
     `(results, retflags, warning_str)`, flags are `FLG_*`, results is a 6-tuple.
     Without the `.se1/.se2` data files it falls back to the built-in Moshier
     ephemeris (arcsecond-class — cross-checked vs astropy/JPL to <2″); the
     fallback is announced in the returned warning string.
-19. **`pymeeus` module/class name collision** — `from pymeeus import Sun`
+20. **`pymeeus` module/class name collision** — `from pymeeus import Sun`
     imports the *module*; the class is `pymeeus.Sun.Sun` (same for `Moon`),
     and `Epoch` comes from `pymeeus.Epoch`. `Angle` objects convert via
     `float()`. Epoch defaults to TT; `utc=True` applies TT−UTC = 69.184 s for
     2025 (its leap table is frozen at 2017 — still correct until the next
     leap second; pass `leap_seconds=` beyond that).
-20. **`ambiance` takes geometric height, ISA tables use geopotential** —
+21. **`ambiance` takes geometric height, ISA tables use geopotential** —
     `Atmosphere(h)` converts internally via `H = h(1 − h/R)` (R = 6356.766 km),
     so the ISA table value at "11 km" (22632 Pa, 216.65 K) is reached at
     11019 m *geometric* input. Properties return numpy arrays (`[0]` for
     scalar input); `from_pressure()`/`from_density()` invert the profile.
-21. **`Babel` 2.18 API churn + sparse display names** — plural evaluation is
+22. **`Babel` 2.18 API churn + sparse display names** — plural evaluation is
     `Locale('ru').plural_form(n)` (a property returning a callable `PluralRule`);
     the old `plural_rule()` method and `babel.plural.to_plural` are gone.
     `get_display_name()` returns `None` for most region-specific locales
@@ -284,7 +290,7 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     subset (script variants, BCP-47 extensions); use the base locale for
     language names. Number/currency output may embed U+00A0 no-break spaces
     (`de_DE`: `"1.234,50 $"`), so compare against normalized strings.
-22. **`convertdate` 2.x API change + upstream data quirk** — 2.x replaced 1.x's
+23. **`convertdate` 2.x API change + upstream data quirk** — 2.x replaced 1.x's
     direct `gregorian_to_<cal>`/`<cal>_to_gregorian` functions with per-module
     `from_gregorian(y,m,d)` / `to_gregorian(...)` routed through Julian Days,
     and dropped 1.x's Chinese-calendar module. `islamic` is the *tabular*

@@ -716,3 +716,42 @@ def test_financedatabase():
     assert (pair["base_currency"], pair["quote_currency"]) == ("EUR", "USD")
     assert _expected("financedatabase", "Sector of AAPL?") == "Information Technology"
     assert _expected("financedatabase", "Base/quote of EURUSD=X?") == "EUR / USD"
+
+
+# ---------------------------------------------------------------- formats/io
+
+
+def test_email_validator():
+    from email_validator import EmailSyntaxError, validate_email
+
+    # RFC 2606 reserves example.com for documentation; the address is the
+    # canonical RFC 5322 simple example
+    r = validate_email("postmaster@example.com", check_deliverability=False)
+    assert (r.local_part, r.domain) == ("postmaster", "example.com")
+    assert _expected("email-validator", "Is postmaster@example.com a valid RFC 5322 address?") == "yes"
+
+    # RFC 5322 section 3.2.3 dot-atom example (user.name+tag+spec@example.com)
+    r = validate_email("user.name+tag@example.com", check_deliverability=False)
+    assert r.normalized == "user.name+tag@example.com"
+    assert _expected("email-validator", "Is user.name+tag@example.com valid?") == "yes (+ is a valid atext)"
+
+    # underscores are not allowed in domain labels (RFC 5322 dot-atom)
+    with pytest.raises(EmailSyntaxError):
+        validate_email("user@exam_ple.com", check_deliverability=False)
+    assert _expected("email-validator", "Is user@exam_ple.com valid?") == "no (underscore not allowed in domain labels)"
+
+    # empty local part is rejected by the RFC 5322 grammar
+    with pytest.raises(EmailSyntaxError):
+        validate_email("@example.com", check_deliverability=False)
+    assert _expected("email-validator", "Is @example.com valid?") == "no (empty local part)"
+
+    # normalization: domain lowercased, local part keeps case (RFC 5321)
+    r = validate_email("First.Local@Example.COM", check_deliverability=False)
+    assert r.normalized == "First.Local@example.com"
+    assert _expected("email-validator", "Normalize First.Local@Example.COM?") == "First.Local@example.com (domain lowercased, local case kept)"
+
+    # cross-check vs the idna card: xn--r8jz45g.jp is the IDNA2008 encoding of
+    # 例え.jp, and .normalized decodes the domain back to the Unicode form
+    r = validate_email("user@xn--r8jz45g.jp", check_deliverability=False)
+    assert r.domain == "例え.jp"
+    assert _expected("email-validator", "Domain of user@xn--r8jz45g.jp?") == "例え.jp (IDNA2008-decoded)"

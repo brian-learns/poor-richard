@@ -45,6 +45,7 @@ listed below is installed unless marked *(candidate — not installed)*.
 
 * [python-stdnum](https://github.com/arthurdejong/python-stdnum): Validation and formatting for standard number systems (IBAN, ISIN, ISBN, VIN, CAS registry, & co.) — `uv add python-stdnum` (imports as `stdnum`; LGPL).
 * [phonenumbers](https://github.com/daviddrysdale/python-phonenumbers): Google's libphonenumber port — parses, validates, and formats phone numbers against the bundled E.164 country data. `uv add phonenumbers`
+* [email-validator](https://github.com/JoshData/python-email-validator): RFC 5322 email-address syntax validation with normalization (local part / domain / IDNA-decoded form). Syntax checks run fully offline; the deliverability option does live DNS MX lookups, so use `check_deliverability=False` offline. `uv add email-validator` (imports as `email_validator`)
 
 ## 🏷️ Technical Formats, Encodings & Media Triage
 

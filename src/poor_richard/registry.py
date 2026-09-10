@@ -594,6 +594,37 @@ CARDS: tuple[ReferenceCard, ...] = (
             Question("Parse an iPhone Safari 17 user-agent string?", "device=iPhone, os=iOS", "verified", "test_user_agents"),
         ),
     ),
+    ReferenceCard(
+        id="email-validator",
+        name="email-validator",
+        pypi="email-validator",
+        import_name="email_validator",
+        archetypes=(_A.VALIDATE, _A.PARSE,),
+        provenance="RFC 5322 address syntax grammar (with RFC 6531/6532 SMTPUTF8 support); "
+        "domain handling per RFC 1123 dot-atom + IDNA2008 via the idna library",
+        keywords="rfc5322 quoted atext displayname mailbox",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="1.5 MB (96 KB code + 1.4 MB dnspython, new dep)",
+        native_deps="none",
+        license="Unlicense (public domain)",
+        questions=(
+            Question("Is postmaster@example.com a valid RFC 5322 address?", "yes", "verified", "test_email_validator"),
+            Question("Is user.name+tag@example.com valid?", "yes (+ is a valid atext)", "verified", "test_email_validator"),
+            Question("Is user@exam_ple.com valid?", "no (underscore not allowed in domain labels)", "verified", "test_email_validator"),
+            Question("Is @example.com valid?", "no (empty local part)", "verified", "test_email_validator"),
+            Question("Normalize First.Local@Example.COM?", "First.Local@example.com (domain lowercased, local case kept)", "verified", "test_email_validator"),
+            Question("Domain of user@xn--r8jz45g.jp?", "例え.jp (IDNA2008-decoded)", "verified", "test_email_validator"),
+        ),
+        notes="check_deliverability=False is the offline path; True performs live "
+        "MX lookups via dnspython (DNS = network, blocked in the test suite). "
+        "2.x: there is no normalize_email() - use validate_email(...).normalized. "
+        "Normalization lowercases the domain but keeps local-part case (RFC 5321); "
+        ".normalized / .domain decode the domain from punycode to Unicode "
+        "(user@xn--r8jz45g.jp -> domain '例え.jp'). Underscores in the domain are "
+        "rejected (RFC 5322 dot-atom, unlike RFC 1123 hostnames).",
+    ),
     # ----------------------------------------------------------- astronomy
     ReferenceCard(
         id="skyfield",

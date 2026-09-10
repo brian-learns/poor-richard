@@ -21,6 +21,7 @@ dependencies = [
     "convertdate>=2.4.1",
     "countryinfo>=1.0.1",
     "czml3>=3.3.1",
+    "email-validator>=2.3.0",
     "ephem>=4.2.1",
     "filetype>=1.2.0",
     "financedatabase>=2.4.0",
