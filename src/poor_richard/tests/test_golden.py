@@ -12,6 +12,7 @@ All tests run with the network blocked (see tests/conftest.py).
 """
 
 import math
+import os
 import struct
 import zlib
 from datetime import date, datetime, timezone
@@ -131,13 +132,29 @@ def _preload_libpostal():
     raise LibpostalMissing
 
 
+def _point_libpostal_at_data():
+    """The wheel's bundled libpostal has no data dir compiled in; point it at a local one."""
+    for candidate in (
+        Path("/opt/libpostal"),
+        Path.home() / ".local/share/libpostal",
+        Path("/usr/local/share/libpostal"),
+    ):
+        if (candidate / "transliteration" / "transliteration.dat").exists():
+            os.environ.setdefault("LIBPOSTAL_DATA_DIR", str(candidate))
+            return
+
+
 def test_postal():
     try:
         _preload_libpostal()
     except LibpostalMissing:
         pytest.skip("system libpostal.so.1 not found")
-    from postal.parser import parse_address
-    from postal.expand import expand_address
+    _point_libpostal_at_data()
+    try:
+        from postal.parser import parse_address
+        from postal.expand import expand_address
+    except ImportError:
+        pytest.skip("pypostal-multiarch not installed")
 
     # parse_address returns (value, type) pairs
     r = {
