@@ -53,6 +53,29 @@ def test_iso639():
     assert _expected("python-iso639", "ISO 639-3 code for ISO 639-1 'de'?") == "deu (639-2/B is 'ger')"
 
 
+def test_babel():
+    from babel import Locale
+    from babel.dates import format_date
+    from babel.numbers import format_currency, format_decimal
+
+    # CLDR display name for 'de' in English; cross-checked against pycountry
+    # (ISO 639-1 'de' -> German, same source value)
+    assert Locale("de").get_display_name("en") == "German"
+    # Russian plural categories per the CLDR rules: n=1 -> one;
+    # n%10 in 2..4 (but not 12..14) -> few; n%10==0 or 5..9 or n%100 in 11..14 -> many
+    plural = Locale("ru").plural_form  # 2.18: property returning a callable PluralRule
+    assert (plural(2), plural(5), plural(21), plural(1)) == ("few", "many", "one", "one")
+    assert format_decimal(1234.5, locale="en_US") == "1,234.5"
+    # CLDR de_DE currency output uses U+00A0 (no-break space) before the symbol
+    assert format_currency(1234.5, "USD", locale="de_DE").replace("\xa0", " ") == "1.234,50 $"
+    assert format_date(datetime(2026, 2, 5), "full", locale="en") == "Thursday, February 5, 2026"
+    assert _expected("babel", "English display name for locale 'de'?") == "German"
+    assert _expected("babel", "Russian plural categories for 2, 5, 21?") == "few, many, one (CLDR ru rules)"
+    assert _expected("babel", "Format 1234.5 in en_US?") == "1,234.5"
+    assert _expected("babel", "Format 1234.50 USD in de_DE?") == "1.234,50 $ (U+00A0 no-break space before the symbol)"
+    assert _expected("babel", "Full date for 2026-02-05 in 'en'?") == "Thursday, February 5, 2026"
+
+
 def test_countryinfo():
     import countryinfo
 

@@ -136,18 +136,19 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 45 cards have passing offline golden examples; 56
+**Status (2026-09):** all 46 cards have passing offline golden examples; 61
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (45 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (46 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
 |---|---|---|---|---|---|
 | pycountry | pycountry | lookup | ⚙ verified | 23 MB | LGPL-2.1 |
 | python-iso639 | python-iso639 | lookup, convert | ⚙ verified | 432 KB | Apache-2.0 |
+| babel | babel | lookup, convert | ⚙ verified | 33 MB | BSD-3-Clause |
 | countryinfo | countryinfo | lookup | ⚙ verified | 2 MB | MIT |
 | timezonefinder | timezonefinder | convert | ⚙ verified | 372 KB + 63 MB data | MIT |
 | postal | pypostal-multiarch | parse, convert | ⚙ verified | 916 KB + system libpostal | MIT |
@@ -274,3 +275,11 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     so the ISA table value at "11 km" (22632 Pa, 216.65 K) is reached at
     11019 m *geometric* input. Properties return numpy arrays (`[0]` for
     scalar input); `from_pressure()`/`from_density()` invert the profile.
+21. **`Babel` 2.18 API churn + sparse display names** — plural evaluation is
+    `Locale('ru').plural_form(n)` (a property returning a callable `PluralRule`);
+    the old `plural_rule()` method and `babel.plural.to_plural` are gone.
+    `get_display_name()` returns `None` for most region-specific locales
+    (`fr_FR`, `de_DE`, `ja_JP`) — CLDR's localeDisplayNames covers only a
+    subset (script variants, BCP-47 extensions); use the base locale for
+    language names. Number/currency output may embed U+00A0 no-break spaces
+    (`de_DE`: `"1.234,50 $"`), so compare against normalized strings.

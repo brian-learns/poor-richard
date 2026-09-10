@@ -125,6 +125,37 @@ CARDS: tuple[ReferenceCard, ...] = (
         "there is no Lang() constructor.",
     ),
     ReferenceCard(
+        id="babel",
+        name="Babel",
+        pypi="babel",
+        import_name="babel",
+        archetypes=(_A.LOOKUP, _A.CONVERT),
+        provenance="CLDR (Unicode Common Locale Data Repository): display names, plural rules, "
+        "number/currency/date formats per locale",
+        keywords="translation i18n l10n percent timezone",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="33 MB installed (~10 MB wheel; 32 MB is bundled CLDR locale data)",
+        native_deps="none",
+        license="BSD-3-Clause",
+        questions=(
+            Question("English display name for locale 'de'?", "German", "verified", "test_babel"),
+            Question("Russian plural categories for 2, 5, 21?", "few, many, one (CLDR ru rules)", "verified", "test_babel"),
+            Question("Format 1234.5 in en_US?", "1,234.5", "verified", "test_babel"),
+            Question("Format 1234.50 USD in de_DE?", "1.234,50 $ (U+00A0 no-break space before the symbol)", "verified", "test_babel"),
+            Question("Full date for 2026-02-05 in 'en'?", "Thursday, February 5, 2026", "verified", "test_babel"),
+        ),
+        notes="2.18: plural evaluation is Locale('ru').plural_form(n) - a property "
+        "returning a callable PluralRule; the old plural_rule() method and "
+        "babel.plural.to_plural import are gone. get_display_name() returns None "
+        "for most region-specific locales (fr_FR, de_DE, ja_JP): CLDR's "
+        "localeDisplayNames covers only a subset (script variants and BCP-47 "
+        "extensions); use the base locale ('de') for language names. Number and "
+        "currency output may embed U+00A0 no-break spaces (de_DE currency: "
+        "'1.234,50 $').",
+    ),
+    ReferenceCard(
         id="countryinfo",
         name="countryinfo",
         pypi="countryinfo",
