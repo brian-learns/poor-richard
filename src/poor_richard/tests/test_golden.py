@@ -303,6 +303,82 @@ def test_convertdate():
     assert _expected("convertdate", "Mayan Long Count for 2012-12-21?") == "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)"
 
 
+def test_icalendar():
+    import zoneinfo
+    from datetime import timedelta
+
+    from icalendar import Calendar, Event
+    from icalendar.prop import vDate, vDuration
+
+    # RFC 5545 section 3.8.3 example VEVENT (values from the RFC itself)
+    cal = Calendar.from_ical(
+        "BEGIN:VCALENDAR\r\n"
+        "VERSION:2.0\r\n"
+        "PRODID:-//EXAMPLE//EN\r\n"
+        "BEGIN:VEVENT\r\n"
+        "UID:20070907T132945Z-123456@EXAMPLE.COM\r\n"
+        "DTSTAMP:20070907T132945Z\r\n"
+        "DTSTART:20070908T130000Z\r\n"
+        "DTEND:20070908T150000Z\r\n"
+        "SUMMARY:Meeting with Jeffrey\r\n"
+        "END:VEVENT\r\n"
+        "END:VCALENDAR"
+    )
+    ev = cal.walk("VEVENT")[0]
+    assert str(ev["SUMMARY"]) == "Meeting with Jeffrey"
+    assert ev["DTSTART"].dt == datetime(2007, 9, 8, 13, 0, tzinfo=timezone.utc)
+    assert ev["DTSTART"].to_ical() == b"20070908T130000Z"
+    assert _expected("icalendar", "SUMMARY of the RFC 5545 example VEVENT?") == "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)"
+
+    # generation: exact content lines per RFC 5545 section 3.1/3.3.5
+    e = Event()
+    e.add("SUMMARY", "Planning Meeting")
+    e.add("DTSTART", datetime(2008, 3, 15, 13, 30, tzinfo=timezone.utc))
+    e.add("DTEND", datetime(2008, 3, 15, 15, 0, tzinfo=timezone.utc))
+    assert e.to_ical() == (
+        b"BEGIN:VEVENT\r\n"
+        b"SUMMARY:Planning Meeting\r\n"
+        b"DTSTART:20080315T133000Z\r\n"
+        b"DTEND:20080315T150000Z\r\n"
+        b"END:VEVENT\r\n"
+    )
+    assert _expected("icalendar", "Content line for a UTC DTSTART of 2008-03-15 13:30?") == "DTSTART:20080315T133000Z (CRLF-terminated bytes)"
+
+    # RFC 5545 section 3.6.1 VTIMEZONE example: America/New_York EST5EDT
+    tz = Calendar.from_ical(
+        "BEGIN:VTIMEZONE\r\n"
+        "TZID:America/New_York\r\n"
+        "BEGIN:STANDARD\r\n"
+        "DTSTART:19701025T020000\r\n"
+        "RRULE:FREQ=YEARLY;BYDAY=5SU;BYMONTH=10\r\n"
+        "TZOFFSETFROM:-0400\r\n"
+        "TZOFFSETTO:-0500\r\n"
+        "TZNAME:EST\r\n"
+        "END:STANDARD\r\n"
+        "BEGIN:DAYLIGHT\r\n"
+        "DTSTART:19700308T020000\r\n"
+        "RRULE:FREQ=YEARLY;BYDAY=2SU;BYMONTH=3\r\n"
+        "TZOFFSETFROM:-0500\r\n"
+        "TZOFFSETTO:-0400\r\n"
+        "TZNAME:EDT\r\n"
+        "END:DAYLIGHT\r\n"
+        "END:VTIMEZONE"
+    ).walk("VTIMEZONE")[0]
+    assert str(tz["TZID"]) == "America/New_York"
+    assert tz.walk("STANDARD")[0]["TZOFFSETTO"].to_ical() == "-0500"  # EST
+    assert tz.walk("DAYLIGHT")[0]["TZOFFSETTO"].to_ical() == "-0400"  # EDT
+    # cross-check against the IANA oracle (stdlib zoneinfo)
+    ny = zoneinfo.ZoneInfo("America/New_York")
+    assert datetime(2007, 9, 8, 12, tzinfo=ny).utcoffset() == timedelta(hours=-4)
+    assert datetime(2007, 1, 15, 12, tzinfo=ny).utcoffset() == timedelta(hours=-5)
+    assert _expected("icalendar", "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?") == "EST −0500, EDT −0400 (matches IANA zoneinfo)"
+
+    # DATE-TIME / DURATION property values (RFC 5545 sections 3.3.5/3.3.6)
+    assert vDuration.from_ical("PT2H30M") == timedelta(hours=2, minutes=30)
+    assert vDate.from_ical("20070908") == date(2007, 9, 8)
+    assert _expected("icalendar", "How does the DURATION value 'PT2H30M' parse?") == "timedelta(hours=2, minutes=30)"
+
+
 def test_iso4217():
     import iso4217
 

@@ -484,6 +484,36 @@ CARDS: tuple[ReferenceCard, ...] = (
         "Already a transitive dependency of workalendar.",
     ),
     ReferenceCard(
+        id="icalendar",
+        name="icalendar",
+        pypi="icalendar",
+        import_name="icalendar",
+        archetypes=(_A.PARSE, _A.GENERATE,),
+        provenance="RFC 5545 (iCalendar): content-line grammar, DATE-TIME/DURATION property values, "
+        "VTIMEZONE rules; RFC 7265 (jCal) JSON encoding",
+        keywords="ics vevent dtstart rrule jcal",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="4.1 MB (python-dateutil + tzdata already in the tree)",
+        native_deps="none",
+        license="BSD-2",
+        questions=(
+            Question("SUMMARY of the RFC 5545 example VEVENT?", "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)", "verified", "test_icalendar"),
+            Question("Content line for a UTC DTSTART of 2008-03-15 13:30?", "DTSTART:20080315T133000Z (CRLF-terminated bytes)", "verified", "test_icalendar"),
+            Question("Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?", "EST −0500, EDT −0400 (matches IANA zoneinfo)", "verified", "test_icalendar"),
+            Question("How does the DURATION value 'PT2H30M' parse?", "timedelta(hours=2, minutes=30)", "verified", "test_icalendar"),
+        ),
+        notes="Calendar.from_ical() on a bare VEVENT returns an Event, not a Calendar — "
+        "reach properties via ev['SUMMARY'] and ev['DTSTART'].dt (integer indexing fails). "
+        "to_ical() returns bytes with CRLF line endings (§3.1); from_ical accepts CRLF or bare "
+        "newlines and unfolds continuation lines. Parsed UTC datetimes carry zoneinfo.UTC and "
+        "DTSTART;TZID=... resolves via system tzdata (a hard 7.x dep, hence tzdata); inline "
+        "VTIMEZONE components register their TZID for unknown zones. to_ical() return "
+        "type varies by property (vDatetime -> bytes, vUTCOffset -> str). jCal round-trip "
+        "via to_jcal()/from_jcal() (RFC 7265 lists, not dicts).",
+    ),
+    ReferenceCard(
         id="iso4217",
         name="iso4217",
         pypi="iso4217",

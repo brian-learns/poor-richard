@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 49 cards have passing offline golden examples; 76
+**Status (2026-09):** all 50 cards have passing offline golden examples; 80
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (49 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (50 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -164,6 +164,7 @@ Source of truth: `poor_richard.registry.CARDS` (49 entries incl. the auxiliary).
 | python-dateutil | python-dateutil | parse, temporal | ⚙ verified | 752 KB | Apache-2.0/BSD |
 | workalendar | workalendar | temporal | ⚙ verified | 1.4 MB | MIT |
 | convertdate | convertdate | convert, temporal | ⚙ verified | 400 KB | MIT |
+| icalendar | icalendar | parse, generate | ⚙ verified | 4.1 MB | BSD-2 |
 | iso4217 | iso4217 | lookup | ⚙ verified | 68 KB | Public domain |
 | python-stdnum | python-stdnum | validate | ⚙ verified | 4.3 MB | LGPL |
 | phonenumbers | phonenumbers | parse, validate | ⚙ verified | 24 MB | Apache-2.0 |
@@ -303,3 +304,7 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     base cells. The v4 Python API is flat (`latlng_to_cell`, `cell_to_latlng`;
     the old `geo_to_h3` names are gone). Spec regression vectors ship in the
     h3 repo's `tests/cli/`.
+25. **`icalendar` `from_ical` returns what you feed it** — a bare VEVENT
+    (no VCALENDAR wrapper) returns an `Event`, not a `Calendar`; integer
+    indexing then fails on the property dict. `to_ical()` returns CRLF bytes,
+    and 7.x hard-depends on `tzdata` for TZID resolution.
