@@ -1147,6 +1147,61 @@ CARDS: tuple[ReferenceCard, ...] = (
         ),
     ),
     ReferenceCard(
+        id="unidecode",
+        name="Unidecode",
+        pypi="unidecode",  # PyPI displays it as `Unidecode`; uv records lowercase
+        import_name="unidecode",
+        archetypes=(_A.CONVERT,),
+        provenance="maintainer-curated transliteration table (descended from Perl "
+        "Text::Unidecode), one fixed ASCII mapping per Unicode character",
+        keywords="ascii transliteration accent pinyin romanization",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="1.4 MB (pure Python, bundled table, no deps)",
+        native_deps="none",
+        license="GPL-2.0-or-later",
+        questions=(
+            Question(
+                "What is the ASCII transliteration of 'café'?",
+                "cafe",
+                "verified",
+                "test_unidecode",
+            ),
+            Question(
+                "How does 'straße' transliterate to ASCII?",
+                "strasse",
+                "verified",
+                "test_unidecode",
+            ),
+            Question(
+                "What is 'Ω' (Greek capital omega) in ASCII?",
+                "O",
+                "verified",
+                "test_unidecode",
+            ),
+            Question(
+                "What is '北京' (Beijing) in ASCII?",
+                "Bei Jing (pinyin, space-separated capitals + trailing space)",
+                "verified",
+                "test_unidecode",
+            ),
+        ),
+        notes="NOT `text-unidecode` (kmike's port of Perl Text::Unidecode, "
+        "Artistic/GPL dual) — that is the name collision; this card is PyPI's "
+        "`Unidecode`. CJK maps to pinyin regardless of language (北京 → "
+        "'Bei Jing ', 日本語 → 'Ri Ben Yu '), not native romanizations "
+        "(romaji), and table entries carry a trailing space. Greek is "
+        "single-letter (π → 'p', not 'pi'; Ω → 'O'). Top-level API: "
+        "unidecode.unidecode(s) (module and function share the name); "
+        "unmapped chars are dropped by default (errors='ignore') — use "
+        "errors='strict' to raise UnidecodeError, or 'preserve' to keep "
+        "them (output may then be non-ASCII). "
+        "GPL-2.0-or-later — GPL is normally excluded from the default "
+        "install (see §6); accepted for this project on maintainer "
+        "decision.",
+    ),
+    ReferenceCard(
         id="pandas-market-calendars",
         name="pandas-market-calendars",
         pypi="pandas-market-calendars",

@@ -946,3 +946,34 @@ def test_email_validator():
     r = validate_email("user@xn--r8jz45g.jp", check_deliverability=False)
     assert r.domain == "例え.jp"
     assert _expected("email-validator", "Domain of user@xn--r8jz45g.jp?") == "例え.jp (IDNA2008-decoded)"
+
+
+def test_unidecode():
+    import unicodedata
+
+    import unidecode
+
+    # é is e + combining acute (U+0301); its ASCII transliteration is 'e'.
+    # Cross-check against the stdlib oracle: NFD decomposition then drop
+    # the combining marks.
+    assert unidecode.unidecode("café") == "cafe"
+    assert unidecode.unidecode("naïve") == "".join(
+        c for c in unicodedata.normalize("NFD", "naïve")
+        if not unicodedata.combining(c)
+    )
+    assert _expected("unidecode", "What is the ASCII transliteration of 'café'?") == "cafe"
+
+    # standard German: ß → ss (as in the conventional 'strasse' spelling)
+    assert unidecode.unidecode("straße") == "strasse"
+    assert _expected("unidecode", "How does 'straße' transliterate to ASCII?") == "strasse"
+
+    # Greek uses single-letter transliteration (ISO 4210 letter scheme)
+    assert unidecode.unidecode("Ω") == "O"
+    assert _expected("unidecode", "What is 'Ω' (Greek capital omega) in ASCII?") == "O"
+
+    # CJK maps to pinyin (the official GB/T 16159 romanization), with
+    # space-separated capitals and a trailing space per table entry
+    assert unidecode.unidecode("北京") == "Bei Jing "
+    assert _expected("unidecode", "What is '北京' (Beijing) in ASCII?") == (
+        "Bei Jing (pinyin, space-separated capitals + trailing space)"
+    )

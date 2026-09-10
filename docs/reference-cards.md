@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 53 cards have passing offline golden examples; 94
+**Status (2026-09):** all 54 cards have passing offline golden examples; 98
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (53 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (54 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -193,6 +193,7 @@ Source of truth: `poor_richard.registry.CARDS` (53 entries incl. the auxiliary).
 | bizdays | bizdays | temporal | ⚙ verified | 116 KB | BSD |
 | charset-normalizer | charset-normalizer | validate | ⚙ verified | 1.1 MB | MIT |
 | idna | idna | convert | ⚙ verified | 428 KB | BSD-3 |
+| unidecode | unidecode | convert | ⚙ verified | 1.4 MB | GPL-2.0-or-later |
 | pandas-market-calendars | pandas-market-calendars | temporal | ⚙ verified | 1.1 MB | MIT |
 | financedatabase | financedatabase | lookup | ⚙ verified (data fetched) | 100 KB + 20 MB data | MIT |
 | chemicals | chemicals | lookup | ⚙ verified | 73 MB | MIT |
@@ -323,3 +324,10 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     `uniseg.sentencebreak` (`.sentences`), `uniseg.linebreak`
     (`.line_break_units`). The PyPI metadata carries no license field — the
     MIT license ships in the wheel's `dist-info/licenses/`.
+28. **`Unidecode` vs `text-unidecode`** — two different PyPI packages:
+    `Unidecode` (GPL-2.0-or-later, installed) and `text-unidecode` (kmike's
+    port of Perl Text::Unidecode, Artistic/GPL dual). Unidecode's table is
+    language-blind: CJK maps to pinyin regardless of the source language
+    (日本語 → `'Ri Ben Yu '`, not romaji), entries carry a trailing space,
+    and Greek is single-letter (π → `'p'`, not `'pi'`). GPL — normally
+    excluded (item 17) — accepted for this project on maintainer decision.
