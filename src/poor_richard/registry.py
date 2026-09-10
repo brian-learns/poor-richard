@@ -312,6 +312,33 @@ CARDS: tuple[ReferenceCard, ...] = (
             Question("(2.0 +/- 0.1) * (3.0 +/- 0.1)?", "6.0 +/- 0.3606 (independent errors)", "verified", "test_uncertainties"),
         ),
     ),
+    ReferenceCard(
+        id="ambiance",
+        name="ambiance",
+        pypi="ambiance",
+        import_name="ambiance",
+        archetypes=(_A.LOOKUP, _A.COMPUTE),
+        provenance="ICAO Doc 7488-3 / ISO 2533 International Standard Atmosphere 1993 (7 layers, -5 to 80 km)",
+        keywords="altitude lapse mach flight level",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="76 KB (numpy/scipy already in tree)",
+        native_deps="none (pure Python on numpy/scipy)",
+        license="Apache-2.0",
+        questions=(
+            Question("ISA sea-level temperature?", "288.15 K (15 degC, exact by definition)", "verified", "test_ambiance"),
+            Question("ISA sea-level pressure and density?", "101325 Pa, 1.225 kg/m3 (exact by definition)", "verified", "test_ambiance"),
+            Question("ISA speed of sound at sea level?", "340.29 m/s (sqrt(1.4 * R * T0))", "verified", "test_ambiance"),
+            Question("ISA temperature at the tropopause (22632 Pa)?", "216.65 K (11019 m geometric = 11 km geopotential)", "verified", "test_ambiance"),
+        ),
+        notes="Atmosphere(h) takes GEOMETRIC height; internally it converts to "
+        "geopotential (H = h(1 - h/R)), so the ISA table values (e.g. 22632 Pa / "
+        "216.65 K at 11 km) are reached at 11019 m geometric, not 11000 m. "
+        "Properties return numpy arrays - index with [0] for scalar input. "
+        "from_pressure()/from_density() invert via scipy.optimize. Valid range "
+        "-5004 to 81020 m (raises ValueError outside).",
+    ),
     # -------------------------------------------------------- temporal/fin
     ReferenceCard(
         id="holidays",

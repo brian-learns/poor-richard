@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 44 cards have passing offline golden examples; 52
+**Status (2026-09):** all 45 cards have passing offline golden examples; 56
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (44 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (45 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -157,6 +157,7 @@ Source of truth: `poor_richard.registry.CARDS` (44 entries incl. the auxiliary).
 | chemformula | chemformula | parse, compute | ⚙ verified | 68 KB | MIT |
 | periodictable | periodictable | lookup | ⚙ verified | 2.6 MB | Public domain |
 | uncertainties | uncertainties | compute | ⚙ verified | 308 KB | BSD-3 |
+| ambiance | ambiance | lookup, compute | ⚙ verified | 76 KB | Apache-2.0 |
 | holidays | holidays | temporal | ⚙ verified | 8.2 MB | MIT |
 | python-dateutil | python-dateutil | parse, temporal | ⚙ verified | 752 KB | Apache-2.0/BSD |
 | workalendar | workalendar | temporal | ⚙ verified | 1.4 MB | MIT |
@@ -268,3 +269,8 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     `float()`. Epoch defaults to TT; `utc=True` applies TT−UTC = 69.184 s for
     2025 (its leap table is frozen at 2017 — still correct until the next
     leap second; pass `leap_seconds=` beyond that).
+20. **`ambiance` takes geometric height, ISA tables use geopotential** —
+    `Atmosphere(h)` converts internally via `H = h(1 − h/R)` (R = 6356.766 km),
+    so the ISA table value at "11 km" (22632 Pa, 216.65 K) is reached at
+    11019 m *geometric* input. Properties return numpy arrays (`[0]` for
+    scalar input); `from_pressure()`/`from_density()` invert the profile.

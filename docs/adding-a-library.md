@@ -148,7 +148,7 @@ Add a `ReferenceCard` to `src/poor_richard/registry.py` (grouped by domain):
 
 - `docs/reference-cards.md` §5: add a row to the card table, bump the count.
   If the library produced a lasting gotcha, add it to §7.
-- `reference-libraries.md`: add/refresh the narrative entry in the matching
+- `reference-libraries.md` (in the repo root, not `docs/`): add/refresh the narrative entry in the matching
   section, with the source link and the `uv add` name.
 - If the library was previously listed in `docs/reference-cards.md` §6
   (candidates not installed) or the `reference-libraries.md` candidates

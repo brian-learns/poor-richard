@@ -26,6 +26,7 @@ listed below is installed unless marked *(candidate — not installed)*.
 * [molmass](https://github.com/cgohlke/molmass): Tiny molar-mass calculator from formula strings (IUPAC atomic weights). 2026.x API: the top-level `molmass` name is a *module*, not the old callable — use `molmass.Formula('H2O').mass`. `uv add molmass`
 * [chemicals](https://github.com/CalebBell/chemicals): The largest pure-Python chemical-property database (CAS registry, critical constants, engineering correlations) that backs the ChEDL `thermo`/`fluids` stack — 73 MB of data, no native deps. `uv add chemicals`
 * [colour-science](https://github.com/colour-science/colour): Colourimetry reference implementation (CIE colour spaces, chromatic adaptation, colour conversions). Note: the PyPI name is `colour-science` and it imports as `colour` — an unrelated toy package owns `colour` on PyPI. `uv add colour-science`
+* [ambiance](https://github.com/airinnova/ambiance): Full implementation of the ICAO standard atmosphere 1993 (ICAO Doc 7488 / ISO 2533) — pressure, density, temperature, speed of sound, viscosity & co. from −5 to 80 km, plus `from_pressure()`/`from_density()` inversion. Gotcha: `Atmosphere(h)` takes *geometric* height (the ISA tables use geopotential, so "11 km" lands at 11019 m input) and properties return numpy arrays. `uv add ambiance`
 
 ## 📅 Temporal, Calendar & Financial Standards
 

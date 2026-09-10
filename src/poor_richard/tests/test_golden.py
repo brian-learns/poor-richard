@@ -173,6 +173,41 @@ def test_uncertainties():
     assert abs(r.std_dev - 0.36055) < 1e-4
     assert _expected("uncertainties", "(2.0 +/- 0.1) * (3.0 +/- 0.1)?") == "6.0 +/- 0.3606 (independent errors)"
 
+def test_ambiance():
+    from ambiance import Atmosphere
+
+    # ISA sea level: values defined by ICAO Doc 7488 / ISO 2533
+    sea = Atmosphere(0)
+    assert sea.temperature[0] == 288.15
+    assert sea.pressure[0] == 101325.0
+    assert abs(sea.density[0] - 1.225) < 1e-6
+    # speed of sound: sqrt(gamma*R*T0) = sqrt(1.4 * 287.05287 * 288.15)
+    assert abs(sea.speed_of_sound[0] - 340.294) < 0.01
+
+    # tropopause: P = 22632 Pa is the ISA table value at the top of the
+    # troposphere (geopotential 11 km); T there is exactly 216.65 K
+    tp = Atmosphere.from_pressure(22632.0)
+    assert abs(tp.temperature[0] - 216.65) < 1e-6
+    assert abs(tp.h[0] - 11019.1) < 1.0  # geometric; geopotential is 11000 m
+
+    # cross-check against the closed-form ISA troposphere equation
+    # P = P0 * (T/T0)^(g0/(R*L)), independent of the package's implementation
+    g0, R, gamma, T0, P0, L, Re = 9.80665, 287.05287, 1.4, 288.15, 101325.0, 0.0065, 6356766.0
+    H = 10000.0  # geopotential height
+    h = H / (1.0 - H / Re)  # -> geometric (Atmosphere takes geometric input)
+    T = T0 - L * H
+    P = P0 * (T / T0) ** (g0 / (R * L))
+    at = Atmosphere(h)
+    assert abs(at.temperature[0] - T) < 1e-6
+    assert abs(at.pressure[0] - P) < 1e-3  # ~26436.2 Pa
+    assert abs(at.density[0] - P / (R * T)) < 1e-9
+    assert abs(at.speed_of_sound[0] - (gamma * R * T) ** 0.5) < 1e-6
+
+    assert _expected("ambiance", "ISA sea-level temperature?") == "288.15 K (15 degC, exact by definition)"
+    assert _expected("ambiance", "ISA sea-level pressure and density?") == "101325 Pa, 1.225 kg/m3 (exact by definition)"
+    assert _expected("ambiance", "ISA speed of sound at sea level?") == "340.29 m/s (sqrt(1.4 * R * T0))"
+    assert _expected("ambiance", "ISA temperature at the tropopause (22632 Pa)?") == "216.65 K (11019 m geometric = 11 km geopotential)"
+
 # -------------------------------------------------------- temporal/financial
 
 
