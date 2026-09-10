@@ -15,17 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      # pypostal-multiarch ships wheels only for cp311/cp312. On 3.13/3.14 the
-      # sdist build would need a system libpostal, which runners don't have —
-      # skip installing it there (the postal test skips without the system .so).
+      # pypostal-multiarch needs a system libpostal to build (sdist) or find
+      # its data (wheels bundle a libpostal with a foreign data path), which
+      # runners don't have — skip it everywhere; the postal tests skip without it.
       - name: Install
-        if: matrix.python == '3.11' || matrix.python == '3.12'
-        run: uv sync --frozen --python ${{ matrix.python }}
-      - name: Install (without pypostal-multiarch)
-        if: matrix.python == '3.13' || matrix.python == '3.14'
         run: uv sync --frozen --python ${{ matrix.python }} --no-install-package pypostal-multiarch
+      # --no-sync: the Install step already synced; a re-sync would also
+      # re-resolve the interpreter from .python-version and clobber the env.
       # Data lives in the venv's site-packages; fetch it so test_financedatabase runs.
       - name: Fetch financedatabase data
-        run: uv run --frozen python scripts/fetch_financedatabase.py
+        run: uv run --frozen --no-sync python scripts/fetch_financedatabase.py
       - name: Test
-        run: uv run --frozen pytest
+        run: uv run --frozen --no-sync pytest
