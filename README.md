@@ -1,6 +1,6 @@
 # Poor Richard
 
-![tests](https://github.com/brian-learns/poor-richard/actions/workflows/tests/badge.svg)
+![tests](https://github.com/brian-learns/poor-richard/actions/workflows/tests.yml/badge.svg)
 
 A modern Almanack of reference information in the form of a curated list of
 python libraries.
