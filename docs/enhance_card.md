@@ -12,9 +12,11 @@ installed in `./.venv` — do not install anything. Work offline.
 
 `poor_richard.search(query)` scores each card by query-token coverage of the
 card text (name, pypi, import name, provenance, `keywords`, notes, and golden
-questions) plus a `difflib` name-similarity bonus. A keyword is only worth
-adding if it flips a real, misrouted query — not if it just sounds relevant.
-See issue #2 (this repo) for the measurements behind this approach.
+questions) plus a `difflib` name-similarity bonus.
+
+There are a lot of python library in the almanack, your job is to make
+these libraries easy to find by adding a small number of high value
+keywords to improve recall during search.
 
 ## Steps
 
@@ -37,40 +39,16 @@ See issue #2 (this repo) for the measurements behind this approach.
    the domain data (e.g. `celsius` in pint's unit registry, `luhn` in
    stdnum's validators), not in API names or docstrings.
 
-4. **Find the routing gaps.** Draft 8–12 natural questions an agent or human
-   would ask that *should* land on your card (the style of the card's golden
-   questions helps). Run them through search and see which misroute:
-
-   ```bash
-   .venv/bin/python - <<'EOF'
-   from poor_richard import search
-   queries = [
-       "celsius to fahrenheit conversion",
-       "check a credit card number with luhn",
-       # ... your candidates
-   ]
-   for q in queries:
-       r = search(q, top=1)
-       print(f"{q!r:45} -> {r[0][1].id if r else 'none'}")
-   EOF
-   ```
-
-   Tokens missing from your card text in the misrouted queries are your
-   keyword candidates.
-
-5. **Pick exactly 5 tokens.** Quality bar, in order:
+4. **Pick 5 tokens.** Quality bar, in order:
    - A person would actually type it: standard names/numbers, unit names,
      identifier types (iban, isbn, vin, ean), colloquial domain words
      (sunrise, checksum, solstice).
    - Not already in your card's existing text (step 2).
-   - **Distinctive across all 43 cards** — grep `registry.py` for the token;
-     if it strongly belongs to another card, it will cause collisions, not
-     fixes (never put `credit card` on anything but `python-stdnum`).
    - Not generic filler: `data`, `convert`, `number`, `date`, `library`,
      `validate`, `calculation` are useless on their own.
    - Lowercase, singular (search folds plurals), space-separated.
 
-6. **Make the edit.** One line, placed directly after the card's
+5. **Make the edit.** One line, placed directly after the card's
    `provenance=` line, matching the existing style (see the `pint` card):
 
    ```python
@@ -78,7 +56,7 @@ See issue #2 (this repo) for the measurements behind this approach.
        keywords="temperature celsius fahrenheit kelvin degree unit conversion",
    ```
 
-7. **Verify (required before you finish):**
+6. **Verify (required before you finish):**
    - Re-run your probes: each keyword's representative query should now rank
      your card top-1 (or clearly higher than before).
    - Run the full suite: `.venv/bin/python -m pytest -q` (~10 s). Any failure
