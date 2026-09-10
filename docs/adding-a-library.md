@@ -114,7 +114,25 @@ Add a `ReferenceCard` to `src/poor_richard/registry.py` (grouped by domain):
 | `license` | exact (AGPL-2.0, not "AGPL") |
 | `questions` | one `Question` per golden question; verified ones need `test_id` |
 | `notes` | **the gotchas**: API breaks, name collisions, data placement, fallbacks. This is where the card earns its keep. |
+| `keywords` | to aid in the discovery of the library  |
 | `example` | only if the derived example is awkward (fixtures, system libs) — see reference-cards.md "Tests double as usage examples". Otherwise leave empty; `poor-richard --example` derives it from the test. |
+
+### 5.1 Keywords
+
+1. **Examine the library.** Import it and play with it in `.venv/bin/python`:
+   the module docstring, public members, and — most importantly — the
+   **standards, units, and identifiers in its data**. High-value terms live in
+   the domain data (e.g. `celsius` in pint's unit registry, `luhn` in
+   stdnum's validators), not in API names or docstrings.
+
+2. **Pick 5 tokens.** Quality bar, in order:
+   - A person would actually type it: standard names/numbers, unit names,
+     identifier types (iban, isbn, vin, ean), colloquial domain words
+     (sunrise, checksum, solstice).
+   - Not already in your card's existing text 
+   - Not generic filler: `data`, `convert`, `number`, `date`, `library`,
+     `validate`, `calculation` are useless on their own.
+   - Lowercase, singular (search folds plurals), space-separated.
 
 ## 6. Docs
 

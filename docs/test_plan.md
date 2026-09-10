@@ -24,61 +24,77 @@ discipline.
 
 1. Fresh session, no prior context about Poor Richard or its libraries.
 2. The task statement never names a library.
-3. Expected results below are the registry's *verified* golden values — the
-   test plan and the test suite share their source of truth.
+3. Expected results below are verified offline against the same libraries
+   (same pinned versions) as the golden test suite. The questions deliberately
+   use *non-canonical* inputs — no standard examples, no trivia values — so
+   recall alone cannot substitute for computation. Once a live run confirms an
+   expected value, promote the question to a verified question in the registry
+   (same feedback loop as the "why" list below).
 4. Network availability is noted per run; the almanack's claim is that none
    of it is needed. A tester who fetches the web still "answers" — we score
    that separately (see grid).
 
 ## Tasks
 
-### T1. The week around Christmas (calendars)
+Each task is **one question with one answer**. Inputs are deliberately
+non-canonical (not the standard's own examples, not trivia values) so the
+question must be *computed*, not recalled.
 
-> "In the week of 2025-12-22 to 2025-12-31, which days are valid trading
-> sessions on the NYSE? And if a trade settles on Christmas Day itself, what
-> is the next business day?"
+### T1. The 10th trading day (calendars)
+
+> "What is the 10th NYSE trading day after 2025-12-22?"
 
 - **Cards exercised:** bizdays, pandas-market-calendars, holidays
-- **Expected:** sessions 24, 26, 29, 30, 31 (no 25th, no weekends); 12-25 → 12-26
-- **Why this task:** holiday + weekend interaction is a classic
-  hallucination; also the strongest multi-library card cluster (three cards
-  can answer it — the tester should find any of them).
+- **Expected:** 2026-01-07 (skips Christmas, both weekends, and New Year's Day)
+- **Why this task:** counting business days across a holiday + weekend +
+  year-end interaction is a classic hallucination; also the strongest
+  multi-library card cluster (three cards can answer it — the tester should
+  find any of them).
 
-### T2. The checksum gauntlet (identifier validation)
+### T2. A checksum that looks valid (identifier validation)
 
-> "Which of these pass their standard checksums: IBAN
-> DE89370400440532013000, card number 4111111111111111, ISBN-13
-> 978-3-16-148410-0? Show your working."
+> "Is IBAN DE13430609671234567891 valid? Show your working."
 
 - **Cards exercised:** python-stdnum
-- **Expected:** all three valid (each is the standard's own canonical example)
-- **Why this task:** LLMs are notoriously bad at multi-step checksum
-  arithmetic; "show your working" forces real computation over pattern
-  recall.
+- **Expected:** no — the mod-97 check fails; the correct check digits for
+  this BBAN are 13
+- **Why this task:** a well-formed IBAN with a one-off check digit cannot be
+  answered by pattern recall — it is mod-97 arithmetic or nothing, and
+  "show your working" forces the real computation over "looks valid".
 
-### T3. How heavy is glucose (constants & chemistry)
+### T3. A hydrate's molar mass (constants & chemistry)
 
-> "What is the molar mass of glucose (C6H12O6) in g/mol using IUPAC atomic
-> weights? Also: what is the exact speed of light in m/s?"
+> "What is the molar mass of copper(II) sulfate pentahydrate (CuSO4·5H2O) in
+> g/mol, using IUPAC atomic weights?"
 
-- **Cards exercised:** molmass, scipy/astropy constants
-- **Expected:** 180.156 g/mol (±0.01); 299,792,458 m/s (exact by definition)
-- **Why this task:** two archetypes in one (compute + lookup); the exact
-  constant checks whether the tester reports *defined* values or fuzzy
-  remembered ones.
+- **Cards exercised:** molmass (or chemformula)
+- **Expected:** 249.685 g/mol (±0.01)
+- **Why this task:** the hydrate dot-notation trips formula parsers, and the
+  value is not a memorized constant — it is 21 atoms summed.
 
-### T4. Paris to London, on the ellipsoid (geodesy)
+### T4. The Rydberg constant (constants)
 
-> "What is the geodesic distance over the WGS84 ellipsoid between Paris
-> (48.8566°N, 2.3522°E) and London (51.5074°N, 0.1278°W)? State the method."
+> "What is the Rydberg constant in m⁻¹? Report the value you used and its
+> precision."
+
+- **Cards exercised:** scipy.constants
+- **Expected:** 1.0973731568157e7 m⁻¹ (±0.01%)
+- **Why this task:** a named constant nobody has memorized — fuzzy recall
+  ("~1.1e7") is outside the tolerance, and "report its precision" exposes a
+  value the tester invented rather than read.
+
+### T5. Cape Town to Nairobi, on the ellipsoid (geodesy)
+
+> "What is the geodesic distance over the WGS84 ellipsoid between Cape Town
+> (33.9249°S, 18.4241°E) and Nairobi (1.2921°S, 36.8219°E)? State the method."
 
 - **Cards exercised:** geographiclib
-- **Expected:** ≈ 343.9 km (golden: 343,923 m)
-- **Why this task:** models routinely answer with the spherical
-  haversine distance, which is ~0.3% off — the tolerance makes the method
+- **Expected:** ≈ 4089.5 km (golden: 4,089,525 m, ±1 km)
+- **Why this task:** a city pair whose distance is not trivia; the spherical
+  haversine answer is ~0.3% off (~12 km), so the tolerance makes the method
   matter, and "state the method" exposes it.
 
-### T5. Where is the sun? (ephemeris)
+### T6. Where is the sun? (ephemeris)
 
 > "What is the Sun's geocentric ecliptic longitude at 2025-06-15 12:00 UTC?"
 
@@ -89,30 +105,41 @@ discipline.
   moon bug (xfail canary) is a known hazard, and muddying the task with it
   would test the bug, not the almanack.
 
-### T6. A Japanese domain and a UK TLD (encodings)
+### T7. A Korean domain (encodings)
 
-> "What is the ASCII-compatible encoding of the internationalized domain
-> 例え.jp? And what is the registered top-level domain of
-> 'shop.example.co.uk'?"
+> "What is the ASCII-compatible (IDNA/punycode) encoding of the domain
+> 한국.kr?"
 
-- **Cards exercised:** idna, tldextract
-- **Expected:** xn--r8jz45g.jp; co.uk
-- **Why this task:** punycode by hand is a hallucination magnet, and
-  multi-part TLDs (co.uk) trip naive `split('.')` reasoning.
+- **Cards exercised:** idna
+- **Expected:** xn--3e0b707e.kr
+- **Why this task:** punycode by hand is a hallucination magnet; the domain
+  is deliberately *not* the RFC's canonical example (例え.jp), so the answer
+  cannot be recalled.
 
-### T7. What kind of thing is AAPL? (financial classification)
+### T8. A two-part TLD (encodings)
 
-> "According to the financedatabase classification, what sector is Apple
-> (AAPL) in? And in the FX pair EUR/USD, which currency is the base and
-> which the quote?"
+> "What is the registered top-level domain (public suffix) of
+> 'app.example.org.cn'?"
+
+- **Cards exercised:** tldextract
+- **Expected:** org.cn
+- **Why this task:** multi-part TLDs trip naive `split('.')` reasoning, and
+  org.cn is a less common suffix than co.uk, so it is not a memorized answer.
+
+### T9. What kind of thing is Deere? (financial classification)
+
+> "According to the financedatabase classification, what sector and industry
+> is Deere & Company (DE) in?"
 
 - **Cards exercised:** financedatabase
-- **Expected:** Information Technology; EUR base / USD quote
-- **Why this task:** tests the one card whose data must be pre-fetched — a
-  setup-failure here is a *test-environment* finding, not a tester failure;
-  also the heaviest-dependency card, so it doubles as an install-size probe.
+- **Expected:** Industrials / Machinery
+- **Why this task:** the classification is dataset-specific — other taxonomies
+  list Deere as Consumer Cyclical — so the answer is not recallable; also
+  tests the one card whose data must be pre-fetched (a setup-failure here is
+  a *test-environment* finding, not a tester failure) and, as the
+  heaviest-dependency card, doubles as an install-size probe.
 
-### T8. Add a duration to a date (temporal parsing)
+### T10. Add a duration to a date (temporal parsing)
 
 > "Parse the ISO 8601 duration P1Y2M3DT4H5M6S and add it to 2025-01-01
 > 00:00 (calendar arithmetic: years to years, months to months, then the
@@ -143,10 +170,10 @@ prioritized trigger list for card-text fixes and the keyword field.
 ## Known hazards (environment, not tester)
 
 - **financedatabase data** must be pre-fetched (`scripts/fetch_financedatabase.py`)
-  or T7 is unanswerable offline; on a fresh NOOA environment this is the most
+  or T9 is unanswerable offline; on a fresh NOOA environment this is the most
   likely setup failure.
 - **ephem 4.2.1 moon bug** — any task drift toward lunar positions can
-  surface the xfail canary; steer testers back to T5's sun or to astropy.
+  surface the xfail canary; steer testers back to T6's sun or to astropy.
 - **The SKILL.md exists in the repo but is not installed into the test
   agent's skill directory** — run Hank cold first (no skill), then warm
   (skill installed); that A/B measures the skill's discovery value. Record a
