@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 52 cards have passing offline golden examples; 89
+**Status (2026-09):** all 53 cards have passing offline golden examples; 94
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (52 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (53 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -197,6 +197,7 @@ Source of truth: `poor_richard.registry.CARDS` (52 entries incl. the auxiliary).
 | financedatabase | financedatabase | lookup | ⚙ verified (data fetched) | 100 KB + 20 MB data | MIT |
 | chemicals | chemicals | lookup | ⚙ verified | 73 MB | MIT |
 | pysweph | pysweph | compute | ⚙ verified | 2 MB | AGPL-2.0 |
+| uniseg | uniseg | parse, validate | ⚙ verified | 11 MB (bundled Unicode 16.0 tables) | MIT |
 | networkx *(auxiliary)* | networkx | — | ⚙ verified | 13 MB | BSD-3 |
 
 ## 6. Candidates not yet installed
@@ -316,3 +317,9 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     and 4326→4328 also drops z on 2-D input — source `EPSG:4979`
     (lat, lon, h) into `EPSG:4328` for full ECEF. Related: UTM zone n's
     central meridian is 6n−183 (zone 31N is +3, not −3).
+27. **`uniseg` top-level module is empty** — `import uniseg` exposes only
+    `unidata_version`/`version`; the API lives in `uniseg.graphemecluster`
+    (`.grapheme_clusters`), `uniseg.wordbreak` (`.words`),
+    `uniseg.sentencebreak` (`.sentences`), `uniseg.linebreak`
+    (`.line_break_units`). The PyPI metadata carries no license field — the
+    MIT license ships in the wheel's `dist-info/licenses/`.

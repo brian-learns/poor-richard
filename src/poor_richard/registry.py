@@ -1251,6 +1251,62 @@ CARDS: tuple[ReferenceCard, ...] = (
         "cross-checked vs astropy/JPL; check the returned warning string). "
         "AGPL-2.0 — accepted for this project on maintainer decision.",
     ),
+    ReferenceCard(
+        id="uniseg",
+        name="uniseg",
+        pypi="uniseg",
+        import_name="uniseg",
+        archetypes=(_A.PARSE, _A.VALIDATE),
+        provenance="Unicode Standard Annexes: UAX #29 (text segmentation) and "
+        "UAX #14 (line breaking), Unicode 16.0 property tables bundled in the wheel",
+        keywords="uax29 uax14 segment cluster emoji",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="11 MB (pure Python + bundled Unicode property tables)",
+        native_deps="none",
+        license="MIT",
+        questions=(
+            Question(
+                "How many grapheme clusters are in 'a\u0301b' (a + combining acute + b)?",
+                "2: 'a\u0301' and 'b' (GB3: no break before combining marks)",
+                "verified",
+                "test_uniseg",
+            ),
+            Question(
+                "Is the US flag emoji (🇺🇸) one grapheme cluster?",
+                "yes (two regional indicators pair up - GB9d)",
+                "verified",
+                "test_uniseg",
+            ),
+            Question(
+                "How does 'o'clock' split at word boundaries?",
+                "1 word (apostrophe after a letter is MidNum - WB7)",
+                "verified",
+                "test_uniseg",
+            ),
+            Question(
+                "Split 'Hello there. How are you? I am fine' into sentences?",
+                "3: 'Hello there. ', 'How are you? ', 'I am fine'",
+                "verified",
+                "test_uniseg",
+            ),
+            Question(
+                "What are the UAX #14 line break units of 'ab cd'?",
+                "'ab ' and 'cd' (LB7: break after, not before, a space)",
+                "verified",
+                "test_uniseg",
+            ),
+        ),
+        notes="The top-level `uniseg` module exposes nothing useful - the API "
+        "lives in submodules: uniseg.graphemecluster.grapheme_clusters(s), "
+        "uniseg.wordbreak.words(s), uniseg.sentencebreak.sentences(s), "
+        "uniseg.linebreak.line_break_units(s) - each takes one string and "
+        "returns an iterator of segments (a `tailor` kwarg can override break "
+        "behavior). uniseg.unidata_version reports the bundled Unicode version "
+        "(16.0.0). PyPI metadata has no license field; the MIT license ships "
+        "in the wheel's dist-info/licenses/.",
+    ),
     # ---------------------------------------------------------- auxiliaries
     ReferenceCard(
         id="networkx",

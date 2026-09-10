@@ -799,6 +799,33 @@ def test_chemicals():
     assert abs(MW("7732-18-5") - 18.0153) < 0.001
     assert _expected("chemicals", "Molecular weight of water (CAS 7732-18-5)?") == "18.0153 g/mol"
 
+
+def test_uniseg():
+    import uniseg
+    from uniseg import graphemecluster, linebreak, sentencebreak, wordbreak
+
+    assert uniseg.unidata_version == "16.0.0"
+
+    # UAX #29 GB3: do not break before combining marks - U+0301 attaches to 'a'
+    assert list(graphemecluster.grapheme_clusters("a\u0301b")) == ["a\u0301", "b"]
+    assert _expected("uniseg", "How many grapheme clusters are in 'a\u0301b' (a + combining acute + b)?") == "2: 'a\u0301' and 'b' (GB3: no break before combining marks)"
+
+    # UAX #29 GB9d: do not break between regional indicators - a flag is 1 cluster
+    assert list(graphemecluster.grapheme_clusters("\U0001F1FA\U0001F1F8")) == ["\U0001F1FA\U0001F1F8"]
+    assert _expected("uniseg", "Is the US flag emoji (🇺🇸) one grapheme cluster?") == "yes (two regional indicators pair up - GB9d)"
+
+    # UAX #29 WB7: Letter x MidNum and MidNum x Letter - "o'clock" is one word
+    assert list(wordbreak.words("o'clock")) == ["o'clock"]
+    assert _expected("uniseg", "How does 'o'clock' split at word boundaries?") == "1 word (apostrophe after a letter is MidNum - WB7)"
+
+    # UAX #29: one sentence per . / ? terminator
+    assert list(sentencebreak.sentences("Hello there. How are you? I am fine")) == ["Hello there. ", "How are you? ", "I am fine"]
+    assert _expected("uniseg", "Split 'Hello there. How are you? I am fine' into sentences?") == "3: 'Hello there. ', 'How are you? ', 'I am fine'"
+
+    # UAX #14 LB7: do not break before a space, do break after one
+    assert list(linebreak.line_break_units("ab cd")) == ["ab ", "cd"]
+    assert _expected("uniseg", "What are the UAX #14 line break units of 'ab cd'?") == "'ab ' and 'cd' (LB7: break after, not before, a space)"
+
 # ------------------------------------------------------------------ hybrid
 
 

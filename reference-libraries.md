@@ -61,6 +61,7 @@ listed below is installed unless marked *(candidate — not installed)*.
 * [idna](https://github.com/kjd/idna): The IDNA 2008 / punycode reference implementation (what stdlib `socket` uses) — `idna.encode('例え.jp')` → `xn--r8jz45g.jp`. `uv add idna`
 * [mimeparse](https://github.com/python/cpython/blob/main/Lib/mimeparse.py): RFC 2045 media-range parsing and matching. Abandoned (2013 release): `best_match()` is broken on py3 (`dict.has_key`), while `parse_mime_type`/`parse_media_range` work fine; the module now lives on in the CPython stdlib. `uv add mimeparse`
 * [mido](https://github.com/mido/mido): Standard MIDI File reading and writing with typed `MetaMessage`/`Message` objects (filter `MetaMessage` when iterating tracks). `uv add mido`
+* [uniseg](https://bitbucket.org/emptypage/uniseg-py): Official Unicode Standard Annex text segmentation — grapheme clusters, word breaks and sentence breaks (UAX #29) plus line-break units (UAX #14), with the Unicode 16.0 property tables bundled in the wheel (fully offline). Note: the top-level `uniseg` module is empty — call `uniseg.graphemecluster.grapheme_clusters(s)`, `uniseg.wordbreak.words(s)`, `uniseg.sentencebreak.sentences(s)`, `uniseg.linebreak.line_break_units(s)`, each returning an iterator of segments. `uv add uniseg`
 
 ## 🔭 Astronomy, Celestial Mechanics & Ephemerides
 
