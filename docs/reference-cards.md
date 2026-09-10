@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 51 cards have passing offline golden examples; 85
+**Status (2026-09):** all 52 cards have passing offline golden examples; 89
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (51 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (52 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -154,6 +154,7 @@ Source of truth: `poor_richard.registry.CARDS` (51 entries incl. the auxiliary).
 | postal | pypostal-multiarch | parse, convert | ⚙ verified | 916 KB + system libpostal | MIT |
 | h3 | h3 | convert | ⚙ verified | 1 MB wheel (3.2 MB installed) | Apache-2.0 |
 | pyproj | pyproj | convert, compute | ⚙ verified | 37 MB | MIT |
+| shapely | shapely | compute | ⚙ verified | 11.2 MB (incl. bundled GEOS) | BSD-3-Clause |
 | scipy.constants | scipy | lookup | ⚙ verified | 96 MB | BSD-3 |
 | astropy.constants | astropy | lookup | ⚙ verified | 42 MB | BSD-3 |
 | pint | pint | convert, compute | ⚙ verified | 1.4 MB | BSD |

@@ -735,6 +735,26 @@ def test_geographiclib():
     assert _expected("geographiclib", "Great-circle distance Paris -> London?") == "343.9 km"
 
 
+def test_shapely():
+    import shapely
+
+    # Expected values are hand-computed Euclidean geometry (Pythagoras,
+    # 1/2 * base * height, the triangle centroid formula, a unit overlap) —
+    # not from shapely's docs.
+    assert shapely.distance(shapely.Point(0, 0), shapely.Point(3, 4)) == 5.0
+    tri = shapely.Polygon([(0, 0), (4, 0), (0, 3)])
+    assert shapely.area(tri) == 6.0
+    cx, cy = shapely.centroid(tri).coords[0]
+    assert abs(cx - 4 / 3) < 1e-12 and cy == 1.0
+    a = shapely.Polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    b = shapely.Polygon([(1, 1), (3, 1), (3, 3), (1, 3)])
+    assert shapely.area(shapely.intersection(a, b)) == 1.0
+    assert _expected("shapely", "Distance between (0,0) and (3,4)?") == "5.0"
+    assert _expected("shapely", "Area of the right triangle (0,0), (4,0), (0,3)?") == "6.0"
+    assert _expected("shapely", "Centroid of the triangle (0,0), (4,0), (0,3)?") == "(4/3, 1)"
+    assert _expected("shapely", "Overlap area of squares [0,2]x[0,2] and [1,3]x[1,3]?") == "1.0"
+
+
 def test_bizdays():
     import bizdays
 

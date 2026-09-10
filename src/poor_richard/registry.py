@@ -1063,6 +1063,32 @@ CARDS: tuple[ReferenceCard, ...] = (
         "Inverse() returns a dict - s12 is the distance in metres.",
     ),
     ReferenceCard(
+        id="shapely",
+        name="shapely",
+        pypi="shapely",
+        import_name="shapely",
+        archetypes=(_A.COMPUTE,),
+        provenance="GEOS 3.13.1 C++ geometry engine (the engine behind PostGIS) — pure computation, no data",
+        keywords="buffer wkt bbox geojson postgis",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="11.2 MB (5.7 MB shapely + 5.5 MB bundled GEOS in shapely.libs)",
+        native_deps="C extension; libgeos_c bundled in the wheel (shapely.libs/)",
+        license="BSD-3-Clause",
+        questions=(
+            Question("Distance between (0,0) and (3,4)?", "5.0", "verified", "test_shapely"),
+            Question("Area of the right triangle (0,0), (4,0), (0,3)?", "6.0", "verified", "test_shapely"),
+            Question("Centroid of the triangle (0,0), (4,0), (0,3)?", "(4/3, 1)", "verified", "test_shapely"),
+            Question("Overlap area of squares [0,2]x[0,2] and [1,3]x[1,3]?", "1.0", "verified", "test_shapely"),
+        ),
+        notes="shapely 2.x exposes the vectorized top-level functions "
+        "(shapely.area/centroid/distance/intersection/buffer); the shapely.geos "
+        "module is deprecated — its attributes are top-level since 2.0. "
+        "Construct with shapely.Point/Polygon/LineString; I/O via "
+        "shapely.to_wkt/from_wkt/to_geojson/from_geojson. Depends on numpy.",
+    ),
+    ReferenceCard(
         id="bizdays",
         name="bizdays",
         pypi="bizdays",

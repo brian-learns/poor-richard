@@ -52,6 +52,7 @@ dependencies = [
     "python-stdnum>=2.2",
     "scipy>=1.18.1",
     "sgp4>=2.27",
+    "shapely>=2.1.2",
     "skyfield>=1.55",
     "starfile>=0.5.13",
     "timezonefinder>=8.3.0",
