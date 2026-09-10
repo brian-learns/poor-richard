@@ -14,6 +14,7 @@ listed below is installed unless marked *(candidate — not installed)*.
 * [timezonefinder](https://github.com/jannikmi/timezonefinder): A highly efficient offline lookup library that utilizes memory-mapped coordinate boundaries to translate raw latitude and longitude coordinates directly into standard IANA timezone names (e.g., America/Los_Angeles).
 * [pypostal-multiarch](https://pypi.org/project/pypostal-multiarch/) (bindings to [libpostal](https://github.com/openvenues/libpostal)): A blazing-fast binding to libpostal (C), providing complete offline parse and normalization capabilities for global street addresses into structured components across different languages. `uv add pypostal-multiarch` — note: the PyPI names `postal` and `pypostal` belong to unrelated packages, and the C extension needs the system `libpostal.so.1`.
 * [geographiclib](https://github.com/geographiclib/geographiclib-python): The reference implementation of the Karney geodesy algorithms — sub-millimetre WGS84 distances, bearings, and geodesic lines (`Geodesic.WGS84.Inverse(...)`). `uv add geographiclib`
+* [h3](https://github.com/uber/h3): Uber's H3 hexagonal geospatial indexing — convert lat/lng ↔ hierarchical hex cell indices (resolutions 0–15), with grid distances, rings, and cell geometry, fully offline (bundled C extension). Gotchas: H3 v4 cell IDs are incompatible with v3 (old-docs indices raise `H3CellInvalidError`), and the v4 API is flat (`latlng_to_cell`, `cell_to_latlng`). `uv add h3`
 
 ## 🔬 Physics, Scientific Constants & Measurement Units
 

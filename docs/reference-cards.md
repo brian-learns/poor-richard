@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 48 cards have passing offline golden examples; 71
+**Status (2026-09):** all 49 cards have passing offline golden examples; 76
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (48 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (49 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -152,6 +152,7 @@ Source of truth: `poor_richard.registry.CARDS` (48 entries incl. the auxiliary).
 | countryinfo | countryinfo | lookup | ⚙ verified | 2 MB | MIT |
 | timezonefinder | timezonefinder | convert | ⚙ verified | 372 KB + 63 MB data | MIT |
 | postal | pypostal-multiarch | parse, convert | ⚙ verified | 916 KB + system libpostal | MIT |
+| h3 | h3 | convert | ⚙ verified | 1 MB wheel (3.2 MB installed) | Apache-2.0 |
 | scipy.constants | scipy | lookup | ⚙ verified | 96 MB | BSD-3 |
 | astropy.constants | astropy | lookup | ⚙ verified | 42 MB | BSD-3 |
 | pint | pint | convert, compute | ⚙ verified | 1.4 MB | BSD |
@@ -297,3 +298,8 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     (arithmetic) calendar, not moon-sighting. `french_republican.MONTHS[0]` is
     'Vendémiaire' even though month 1 is Brumaire — the tuple's first two
     entries are swapped, so don't use it for month names.
+24. **H3 v4 cell IDs are incompatible with v3** — indices from pre-v4 docs
+    (e.g. `0x89283082809fff3`) raise `H3CellInvalidError`; v4 renumbered the
+    base cells. The v4 Python API is flat (`latlng_to_cell`, `cell_to_latlng`;
+    the old `geo_to_h3` names are gone). Spec regression vectors ship in the
+    h3 repo's `tests/cli/`.

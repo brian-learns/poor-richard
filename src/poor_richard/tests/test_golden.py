@@ -95,6 +95,23 @@ def test_timezonefinder():
     assert _expected("timezonefinder", "IANA zone for (48.8566, 2.3522)?") == "Europe/Paris"
 
 
+def test_h3():
+    import h3
+
+    # Expected values are the H3 v4 spec's own regression vectors
+    # (uber/h3 v4.5.0, tests/cli/*.txt - the C reference impl's golden data).
+    assert h3.latlng_to_cell(20, 123, 2) == "824b9ffffffffff"
+    lat, lng = h3.cell_to_latlng("8928342e20fffff")
+    assert abs(lat - 37.5012466151) < 1e-9
+    assert abs(lng - (-122.5003039349)) < 1e-9
+    assert h3.get_base_cell_number("85283473fffffff") == 20
+    assert h3.grid_distance("85283473fffffff", "8528342bfffffff") == 2
+    assert _expected("h3", "H3 cell at res 2 for (20, 123)?") == "824b9ffffffffff"
+    assert _expected("h3", "Center of H3 cell 8928342e20fffff?") == "(37.5012466151, -122.5003039349)"
+    assert _expected("h3", "Base cell of 85283473fffffff?") == "20"
+    assert _expected("h3", "Grid distance 85283473fffffff -> 8528342bfffffff?") == "2"
+
+
 class LibpostalMissing(Exception):
     """Raised when the system libpostal.so.1 is not on disk."""
 

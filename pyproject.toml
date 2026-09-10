@@ -26,6 +26,7 @@ dependencies = [
     "filetype>=1.2.0",
     "financedatabase>=2.4.0",
     "geographiclib>=2.1",
+    "h3>=4.5.0",
     "holidays>=0.104",
     "idna>=3.19",
     "iso4217>=1.16.20260101",

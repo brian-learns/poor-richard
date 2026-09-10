@@ -229,6 +229,33 @@ CARDS: tuple[ReferenceCard, ...] = (
             "alts = expand_address('1600 Penn Ave NW')  # 'northwest' -> 'NW' & co.\n"
         ),
     ),
+    ReferenceCard(
+        id="h3",
+        name="h3",
+        pypi="h3",
+        import_name="h3",
+        archetypes=(_A.CONVERT,),
+        provenance="Uber H3 v4 spec; hexagonal geospatial indexing (C reference implementation)",
+        keywords="geohash hexagon hexbin spatial geocoding",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="1 MB wheel (3.2 MB installed, C extension)",
+        native_deps="none (bundled C extension)",
+        license="Apache-2.0",
+        questions=(
+            Question("H3 cell at res 2 for (20, 123)?", "824b9ffffffffff", "verified", "test_h3"),
+            Question("Center of H3 cell 8928342e20fffff?", "(37.5012466151, -122.5003039349)", "verified", "test_h3"),
+            Question("Base cell of 85283473fffffff?", "20", "verified", "test_h3"),
+            Question("Grid distance 85283473fffffff -> 8528342bfffffff?", "2", "verified", "test_h3"),
+        ),
+        notes="H3 v4 cell IDs are incompatible with v3: old-docs indices like "
+        "0x89283082809fff3 raise H3CellInvalidError. v4 Python API is flat "
+        "(latlng_to_cell/cell_to_latlng; the old geo_to_h3 names are gone); "
+        "cells accept hex strings and latlng_to_cell takes (lat, lng, res). "
+        "Spec regression vectors ship in the h3 repo's tests/cli/. "
+        "Also a transitive dep of timezonefinder.",
+    ),
     # ------------------------------------------------------- physics/units
     ReferenceCard(
         id="scipy.constants",
