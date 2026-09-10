@@ -259,6 +259,33 @@ def test_workalendar():
     assert _expected("workalendar", "Next US working day after 2025-12-25?") == "2025-12-26"
 
 
+def test_convertdate():
+    import convertdate.french_republican as french
+    import convertdate.hebrew as hebrew
+    import convertdate.islamic as islamic
+    import convertdate.julian as julian
+    import convertdate.mayan as mayan
+
+    # Gregorian<->Julian offset is 13 days for 1900-2100
+    assert julian.from_gregorian(2000, 2, 28) == (2000, 2, 15)
+    assert julian.to_gregorian(2000, 2, 15) == (2000, 2, 28)
+    # 1 Tishrei 5785 = Rosh Hashanah 5785, first day (published date:
+    # Wikipedia "2024 in Israel" — Rosh Hashanah 3 Oct, Yom Kippur 12 Oct)
+    assert hebrew.from_gregorian(2024, 10, 3) == (5785, 7, 1)
+    # Hijra epoch: 1 Muharram 1 AH = 622-07-19 proleptic Gregorian (tabular)
+    assert islamic.from_gregorian(622, 7, 19) == (1, 1, 1)
+    # 1 Brumaire Year I = 1792-09-22 (the Republic proclaimed)
+    assert french.from_gregorian(1792, 9, 22) == (1, 1, 1)
+    # End of the 13th b'ak'tun = 2012-12-21 (GMT correlation constant 584283)
+    assert mayan.from_gregorian(2012, 12, 21) == (13, 0, 0, 0, 0)
+    assert mayan.to_gregorian(13, 0, 0, 0, 0) == (2012, 12, 21)
+    assert _expected("convertdate", "What is 2000-02-28 in the Julian calendar?") == "2000-02-15 (13 days behind, 1900–2100)"
+    assert _expected("convertdate", "Hebrew date for 2024-10-03?") == "1 Tishrei 5785 (first day of Rosh Hashanah)"
+    assert _expected("convertdate", "Islamic date for 622-07-19 (Gregorian)?") == "1 Muharram 1 AH (Hijra epoch)"
+    assert _expected("convertdate", "French Republican date for 1792-09-22?") == "1 Brumaire Year I"
+    assert _expected("convertdate", "Mayan Long Count for 2012-12-21?") == "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)"
+
+
 def test_iso4217():
     import iso4217
 

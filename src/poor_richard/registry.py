@@ -428,6 +428,35 @@ CARDS: tuple[ReferenceCard, ...] = (
         "is_working_day()/add_working_days() (next_workday is gone).",
     ),
     ReferenceCard(
+        id="convertdate",
+        name="convertdate",
+        pypi="convertdate",
+        import_name="convertdate",
+        archetypes=(_A.CONVERT, _A.TEMPORAL,),
+        provenance="Standard calendar algorithms: Julian Day arithmetic, Maimonides' Hebrew intercalation, "
+        "tabular Islamic 30-year cycle, French Republican Year I epoch, Mayan GMT correlation constant 584283",
+        keywords="hijri nowruz tzolkin persian haab",
+        update_model=_U.ALGORITHMIC,
+        offline=True,
+        offline_verified=True,
+        footprint="400 KB (pulls in pymeeus, already in the tree)",
+        native_deps="none",
+        license="MIT",
+        questions=(
+            Question("What is 2000-02-28 in the Julian calendar?", "2000-02-15 (13 days behind, 1900–2100)", "verified", "test_convertdate"),
+            Question("Hebrew date for 2024-10-03?", "1 Tishrei 5785 (first day of Rosh Hashanah)", "verified", "test_convertdate"),
+            Question("Islamic date for 622-07-19 (Gregorian)?", "1 Muharram 1 AH (Hijra epoch)", "verified", "test_convertdate"),
+            Question("French Republican date for 1792-09-22?", "1 Brumaire Year I", "verified", "test_convertdate"),
+            Question("Mayan Long Count for 2012-12-21?", "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)", "verified", "test_convertdate"),
+        ),
+        notes="2.x API: each module exposes from_gregorian(y,m,d)/to_gregorian(...) via Julian Day "
+        "(1.x's gregorian_to_<cal> functions are gone) and 1.x's chinese module was removed. "
+        "islamic is the tabular (arithmetic) calendar, not moon-sighting. "
+        "french_republican.MONTHS[0] is 'Vendémiaire' but month 1 is Brumaire — "
+        "the tuple's first two entries are swapped; don't use it for month names. "
+        "Already a transitive dependency of workalendar.",
+    ),
+    ReferenceCard(
         id="iso4217",
         name="iso4217",
         pypi="iso4217",

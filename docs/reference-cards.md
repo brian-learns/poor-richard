@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 46 cards have passing offline golden examples; 61
+**Status (2026-09):** all 47 cards have passing offline golden examples; 66
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (46 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (47 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -162,6 +162,7 @@ Source of truth: `poor_richard.registry.CARDS` (46 entries incl. the auxiliary).
 | holidays | holidays | temporal | ⚙ verified | 8.2 MB | MIT |
 | python-dateutil | python-dateutil | parse, temporal | ⚙ verified | 752 KB | Apache-2.0/BSD |
 | workalendar | workalendar | temporal | ⚙ verified | 1.4 MB | MIT |
+| convertdate | convertdate | convert, temporal | ⚙ verified | 400 KB | MIT |
 | iso4217 | iso4217 | lookup | ⚙ verified | 68 KB | Public domain |
 | python-stdnum | python-stdnum | validate | ⚙ verified | 4.3 MB | LGPL |
 | phonenumbers | phonenumbers | parse, validate | ⚙ verified | 24 MB | Apache-2.0 |
@@ -283,3 +284,10 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     subset (script variants, BCP-47 extensions); use the base locale for
     language names. Number/currency output may embed U+00A0 no-break spaces
     (`de_DE`: `"1.234,50 $"`), so compare against normalized strings.
+22. **`convertdate` 2.x API change + upstream data quirk** — 2.x replaced 1.x's
+    direct `gregorian_to_<cal>`/`<cal>_to_gregorian` functions with per-module
+    `from_gregorian(y,m,d)` / `to_gregorian(...)` routed through Julian Days,
+    and dropped 1.x's Chinese-calendar module. `islamic` is the *tabular*
+    (arithmetic) calendar, not moon-sighting. `french_republican.MONTHS[0]` is
+    'Vendémiaire' even though month 1 is Brumaire — the tuple's first two
+    entries are swapped, so don't use it for month names.

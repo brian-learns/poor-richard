@@ -18,6 +18,7 @@ dependencies = [
     "chemformula>=1.5.1",
     "chemicals>=1.5.2",
     "colour-science>=0.4.7",
+    "convertdate>=2.4.1",
     "countryinfo>=1.0.1",
     "czml3>=3.3.1",
     "ephem>=4.2.1",
