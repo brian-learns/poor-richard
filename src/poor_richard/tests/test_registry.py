@@ -63,6 +63,14 @@ def test_import_names_resolvable():
     except LibpostalMissing:
         pytest.skip("system libpostal.so.1 not found")
     for card in CARDS:
+        if card.import_name == "postal":
+            # CI installs without pypostal-multiarch on 3.13/3.14 (no wheels;
+            # the sdist build needs a system libpostal)
+            try:
+                importlib.import_module("postal")
+            except ImportError:
+                pytest.skip("pypostal-multiarch not installed")
+            continue
         importlib.import_module(card.import_name), card.pypi
 
 
