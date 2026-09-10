@@ -1626,7 +1626,6 @@ dependencies = [
     { name = "email-validator" },
     { name = "ephem" },
     { name = "filetype" },
-    { name = "financedatabase" },
     { name = "geographiclib" },
     { name = "h3" },
     { name = "holidays" },
@@ -1646,7 +1645,6 @@ dependencies = [
     { name = "pint" },
     { name = "pycountry" },
     { name = "pymeeus" },
-    { name = "pypostal-multiarch" },
     { name = "pyproj", version = "3.7.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "pyproj", version = "3.8.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pysweph" },
@@ -1667,6 +1665,12 @@ dependencies = [
     { name = "uniseg" },
     { name = "user-agents" },
     { name = "workalendar" },
+]
+
+[package.optional-dependencies]
+full = [
+    { name = "financedatabase" },
+    { name = "pypostal-multiarch" },
 ]
 
 [package.dev-dependencies]
@@ -1693,7 +1697,7 @@ requires-dist = [
     { name = "email-validator", specifier = ">=2.3.0" },
     { name = "ephem", specifier = ">=4.2.1" },
     { name = "filetype", specifier = ">=1.2.0" },
-    { name = "financedatabase", specifier = ">=2.4.0" },
+    { name = "financedatabase", marker = "extra == 'full'", specifier = ">=2.4.0" },
     { name = "geographiclib", specifier = ">=2.1" },
     { name = "h3", specifier = ">=4.5.0" },
     { name = "holidays", specifier = ">=0.104" },
@@ -1712,7 +1716,7 @@ requires-dist = [
     { name = "pint", specifier = ">=0.25.3" },
     { name = "pycountry", specifier = ">=26.2.16" },
     { name = "pymeeus", specifier = ">=0.5.12" },
-    { name = "pypostal-multiarch", specifier = ">=1.0.3" },
+    { name = "pypostal-multiarch", marker = "extra == 'full'", specifier = ">=1.0.3" },
     { name = "pyproj", specifier = ">=3.7.2" },
     { name = "pysweph", specifier = ">=2.10.3.6" },
     { name = "python-dateutil", specifier = ">=2.9.0.post0" },
@@ -1732,6 +1736,7 @@ requires-dist = [
     { name = "user-agents", specifier = ">=2.2.0" },
     { name = "workalendar", specifier = ">=17.0.0" },
 ]
+provides-extras = ["full"]
 
 [package.metadata.requires-dev]
 dev = [

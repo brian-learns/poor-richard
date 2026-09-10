@@ -30,8 +30,10 @@ FILES = [
 
 
 def target_dir() -> Path:
-    import financedatabase
-
+    try:
+        import financedatabase
+    except ImportError:
+        sys.exit("financedatabase is not installed; install the extra first: uv pip install 'poor-richard[full]' (or uv sync --all-extras)")
     return Path(financedatabase.__file__).resolve().parent.parent / "compression"
 
 

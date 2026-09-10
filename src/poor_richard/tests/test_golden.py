@@ -908,7 +908,10 @@ def test_pysweph():
 
 
 def test_financedatabase():
-    import financedatabase
+    try:
+        import financedatabase
+    except ImportError:
+        pytest.skip("financedatabase not installed (optional 'full' extra)")
     from pathlib import Path
 
     data = Path(financedatabase.__file__).resolve().parent.parent / "compression"

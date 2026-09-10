@@ -55,6 +55,17 @@ def test_cards_well_formed():
                 assert q.test_id, f"{card.id}: verified question has no test_id"
 
 
+def _optional_packages():
+    """pypi names in [project.optional-dependencies] — may be absent in a base install."""
+    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
+    groups = pyproject.get("project", {}).get("optional-dependencies", {}).values()
+    return {
+        d.split(">=")[0].split("<=")[0].strip()
+        for group in groups
+        for d in group
+    }
+
+
 def test_import_names_resolvable():
     from poor_richard.tests.test_golden import LibpostalMissing, _preload_libpostal
 
@@ -62,16 +73,14 @@ def test_import_names_resolvable():
         _preload_libpostal()
     except LibpostalMissing:
         pytest.skip("system libpostal.so.1 not found")
+    optional = _optional_packages()
     for card in CARDS:
-        if card.import_name == "postal":
-            # CI installs without pypostal-multiarch on 3.13/3.14 (no wheels;
-            # the sdist build needs a system libpostal)
-            try:
-                importlib.import_module("postal")
-            except ImportError:
-                pytest.skip("pypostal-multiarch not installed")
-            continue
-        importlib.import_module(card.import_name), card.pypi
+        try:
+            importlib.import_module(card.import_name)
+        except ImportError:
+            if card.pypi in optional:
+                pytest.skip(f"{card.pypi} not installed (optional 'full' extra)")
+            raise
 
 
 def test_verified_questions_have_tests():
@@ -112,6 +121,7 @@ def test_verified_answers_pinned_in_golden_tests():
 def test_registry_matches_pyproject():
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
     deps = {d.split("==")[0].split(">=")[0].split("<=")[0].strip() for d in pyproject["project"]["dependencies"]}
+    deps |= _optional_packages()
     carded = {c.pypi for c in CARDS}
     missing_cards = deps - carded
     missing_deps = carded - deps
