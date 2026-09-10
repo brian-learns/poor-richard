@@ -1,5 +1,7 @@
 # Poor Richard
 
+![tests](https://github.com/brian-learns/poor-richard/actions/workflows/tests/badge.svg)
+
 A modern Almanack of reference information in the form of a curated list of
 python libraries.
 
@@ -7,6 +9,11 @@ The almanack gives an LLM agent authoritative **offline** answers to factual
 questions — ISO codes, physical constants, unit conversions, holiday and
 business-day calendars, celestial ephemerides, identifier validation — instead of
 hallucinated or web-fetched ones.
+
+Requires Python 3.11–3.14 (tested on all four in CI). The base install covers
+every card; the `full` extra (`uv sync --all-extras`, or `poor-richard[full]`)
+adds the two heavier ones — `financedatabase` and `pypostal-multiarch` — whose
+tests need a data fetch or a system libpostal.
 
 ## Layout
 
