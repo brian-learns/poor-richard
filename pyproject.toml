@@ -44,6 +44,7 @@ dependencies = [
     "pycountry>=26.2.16",
     "pymeeus>=0.5.12",
     "pypostal-multiarch>=1.0.3",
+    "pyproj>=3.8.0",
     "pysweph>=2.10.3.6",
     "python-dateutil>=2.9.0.post0",
     "python-iso639>=2026.7.23",

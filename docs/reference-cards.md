@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 50 cards have passing offline golden examples; 80
+**Status (2026-09):** all 51 cards have passing offline golden examples; 85
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (50 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (51 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -153,6 +153,7 @@ Source of truth: `poor_richard.registry.CARDS` (50 entries incl. the auxiliary).
 | timezonefinder | timezonefinder | convert | ⚙ verified | 372 KB + 63 MB data | MIT |
 | postal | pypostal-multiarch | parse, convert | ⚙ verified | 916 KB + system libpostal | MIT |
 | h3 | h3 | convert | ⚙ verified | 1 MB wheel (3.2 MB installed) | Apache-2.0 |
+| pyproj | pyproj | convert, compute | ⚙ verified | 37 MB | MIT |
 | scipy.constants | scipy | lookup | ⚙ verified | 96 MB | BSD-3 |
 | astropy.constants | astropy | lookup | ⚙ verified | 42 MB | BSD-3 |
 | pint | pint | convert, compute | ⚙ verified | 1.4 MB | BSD |
@@ -203,7 +204,6 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 
 | Package | Category | Why not yet |
 |---|---|---|
-| `pyproj` | geography | CRS / datum transforms (PROJ) — heavier, native |
 | `rdkit` | chemistry | SMILES/InChI, fingerprints — **heavy**, native build |
 | `thermo` / `fluids` | chemistry | ChEDL compute layer over `chemicals` (installed); heavy, not needed for lookup |
 | `pvlib` | astronomy | solar position & irradiance (NREL SPA) — native-ish |
@@ -308,3 +308,10 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     (no VCALENDAR wrapper) returns an `Event`, not a `Calendar`; integer
     indexing then fails on the property dict. `to_ical()` returns CRLF bytes,
     and 7.x hard-depends on `tzdata` for TZID resolution.
+26. **EPSG:4979 is NOT geocentric** — it is WGS 84 *geodetic 3D* (lat, lon,
+    ellipsoidal height); WGS 84 *geocentric* (ECEF) is **EPSG:4328**.
+    `Transformer.from_crs("EPSG:4326", "EPSG:4979")` therefore selects a
+    "Null geographic offset" and returns the input unchanged (z dropped),
+    and 4326→4328 also drops z on 2-D input — source `EPSG:4979`
+    (lat, lon, h) into `EPSG:4328` for full ECEF. Related: UTM zone n's
+    central meridian is 6n−183 (zone 31N is +3, not −3).

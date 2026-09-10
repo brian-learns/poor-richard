@@ -256,6 +256,38 @@ CARDS: tuple[ReferenceCard, ...] = (
         "Spec regression vectors ship in the h3 repo's tests/cli/. "
         "Also a transitive dep of timezonefinder.",
     ),
+    ReferenceCard(
+        id="pyproj",
+        name="pyproj",
+        pypi="pyproj",
+        import_name="pyproj",
+        archetypes=(_A.CONVERT, _A.COMPUTE),
+        provenance="PROJ (OSGeo) + bundled EPSG registry snapshot (proj-data 1.24, EPSG v12.029, 2025-10)",
+        keywords="crs projection reproject transverse map",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="37 MB (24 MB pyproj + 13 MB bundled PROJ C libs)",
+        native_deps="PROJ C library (bundled in the wheel)",
+        license="MIT",
+        questions=(
+            Question("Web Mercator (EPSG:3857) x at the antimeridian (180, 0)?", "20037508.3428 m (= R*pi)", "verified", "test_pyproj"),
+            Question("UTM coordinates of (0, 0)?", "zone 31N: E 166021.4431 m, N 0 m", "verified", "test_pyproj"),
+            Question("ECEF coordinates of 10 E, 50 N, height 0?", "(4045456.41, 713323.11, 4862789.04) m", "verified", "test_pyproj"),
+            Question("Geodesic length of 1 degree of longitude at the equator?", "111319.4908 m (= a*pi/180)", "verified", "test_pyproj"),
+            Question("Geodesic distance Paris -> Tokyo?", "9735.3 km", "verified", "test_pyproj"),
+        ),
+        notes="EPSG:4979 is WGS 84 *geodetic 3D* (lat, lon, ellipsoidal height), NOT "
+        "geocentric - geocentric is EPSG:4328; 4326->4328 drops z on 2-D input, so "
+        "use 4979->4328 for full ECEF. pyproj 3.x Proj.__call__ is 2-D only "
+        "(lon, lat[, inverse]); use Transformer for 3-D transforms. Always pass "
+        "always_xy=True or geographic CRSs use (lat, lon) axis order. UTM zone n "
+        "central meridian is 6n-183 (zone 31N: +3, not -3). NTv2 datum shift grids "
+        "are downloaded on demand (pyproj.network); the golden path avoids "
+        "grid-dependent transforms, which fail loudly under the socket block. "
+        "Geod(ellps='WGS84') is Karney's algorithm - agrees with geographiclib "
+        "to full double precision.",
+    ),
     # ------------------------------------------------------- physics/units
     ReferenceCard(
         id="scipy.constants",

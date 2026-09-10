@@ -155,6 +155,57 @@ def test_postal():
     assert any("northwest" in alt for alt in expand_address("1600 Penn Ave NW"))
     assert _expected("postal", "Parse '1600 Pennsylvania Avenue NW, Washington, DC 20500' (US)?") == "house_number=1600, road=pennsylvania avenue nw, city=washington, state=dc, postcode=20500"
 
+
+def test_pyproj():
+    import pyproj
+
+    # Web Mercator (EPSG:3857): x at the antimeridian is R*pi by the spec's
+    # own definition (R = 6378137 m).
+    t = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
+    x, y = t.transform(180.0, 0.0)
+    assert x == pytest.approx(20037508.342789244, abs=1e-6)
+    assert y == pytest.approx(0.0, abs=1e-9)
+    assert _expected("pyproj", "Web Mercator (EPSG:3857) x at the antimeridian (180, 0)?") == "20037508.3428 m (= R*pi)"
+
+    # UTM zone 31N (EPSG:32631): central meridian is +3 (zone n cm = 6n-183), so
+    # (0,0) sits 3 deg west of it; verified against an independent Snyder-series
+    # implementation. Central meridian on the equator is E 500000, N 0 by definition.
+    t2 = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:32631", always_xy=True)
+    e, n = t2.transform(0.0, 0.0)
+    assert e == pytest.approx(166021.4431, abs=1e-3)
+    assert n == pytest.approx(0.0, abs=1e-9)
+    e3, n3 = t2.transform(3.0, 0.0)
+    assert e3 == pytest.approx(500000.0, abs=1e-3)
+    assert n3 == pytest.approx(0.0, abs=1e-9)
+    assert _expected("pyproj", "UTM coordinates of (0, 0)?") == "zone 31N: E 166021.4431 m, N 0 m"
+
+    # Geodetic -> geocentric (ECEF): EPSG:4979 is WGS 84 *geodetic 3D* (lat, lon, h),
+    # EPSG:4328 is WGS 84 *geocentric*. (0,0,0) is the WGS84 semi-major axis on the
+    # x-axis; (10 E, 50 N, h=0) verified against the WGS84 ECEF formula.
+    t3 = pyproj.Transformer.from_crs("EPSG:4979", "EPSG:4328", always_xy=True)
+    x, y, z = t3.transform(0.0, 0.0, 0.0)
+    assert (x, y, z) == pytest.approx((6378137.0, 0.0, 0.0), abs=1e-6)
+    x, y, z = t3.transform(10.0, 50.0, 0.0)
+    assert (x, y, z) == pytest.approx((4045456.4053408885, 713323.1135414789, 4862789.037706433), abs=1e-3)
+    assert _expected("pyproj", "ECEF coordinates of 10 E, 50 N, height 0?") == "(4045456.41, 713323.11, 4862789.04) m"
+
+    # 1 degree of longitude on the equator: the equator is a circle of radius a,
+    # so the geodesic is exactly a*pi/180.
+    g = pyproj.Geod(ellps="WGS84")
+    s = g.inv(0.0, 0.0, 1.0, 0.0)[2]
+    assert s == pytest.approx(6378137.0 * math.pi / 180.0, abs=1e-6)
+    assert _expected("pyproj", "Geodesic length of 1 degree of longitude at the equator?") == "111319.4908 m (= a*pi/180)"
+
+    # Paris -> Tokyo: cross-check vs the geographiclib oracle already in the tree;
+    # pyproj (PROJ/Karney) and geographiclib agree to full double precision.
+    s = g.inv(2.3522, 48.8566, 139.6503, 35.6762)[2]
+    assert s == pytest.approx(9735308.65423938, abs=1e-3)
+    from geographiclib.geodesic import Geodesic
+
+    s_gl = Geodesic.WGS84.Inverse(48.8566, 2.3522, 35.6762, 139.6503)["s12"]
+    assert s == pytest.approx(s_gl, abs=1e-9)
+    assert _expected("pyproj", "Geodesic distance Paris -> Tokyo?") == "9735.3 km"
+
 # ----------------------------------------------------------- physics/units
 
 
