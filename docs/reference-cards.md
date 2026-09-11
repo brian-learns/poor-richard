@@ -214,6 +214,7 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 | `flatlib` / `kerykeion` | astrology | listed in `reference-libraries.md` but not yet installed (Swiss Ephemeris stack; `pyswisseph` replaced by installed `pysweph`) |
 | `rfc3987` | formats | IRI parsing — **GPL-3+**, excluded from default install (opt-in candidate) |
 | `pysolar` | astronomy | solar position — **GPL**, excluded from default install (opt-in candidate) |
+| `lunardate` | calendars | Gregorian ↔ Chinese (lunisolar) conversion, leap months, zodiac — **GPL-3.0**, excluded from default install (opt-in candidate) |
 
 > **Hallucinated packages** — `iana-registries` and `pybusday` do not exist on
 > PyPI (both surfaced from AI-generated library lists). Real alternatives for
