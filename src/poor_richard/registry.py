@@ -25,6 +25,8 @@ __all__ = [
     "CARDS",
     "get",
     "by_pypi",
+    "browse",
+    "catalog",
     "search",
 ]
 
@@ -1494,3 +1496,48 @@ def search(query: str, top: int = 3) -> list[tuple[float, ReferenceCard, Questio
         results.append((round(score, 3), card, best_q))
     results.sort(key=lambda r: -r[0])  # stable: card order breaks ties
     return results[:top]
+
+
+# ------------------------------------------------------------------ browse
+#
+# Stage 1 of the two-stage flow (docs/two-stage.md): survey the catalog and
+# map a question to a catalog class *before* retrieving. These show the shape
+# of each reference's questions, never the verified answers - the answers are
+# the retrieve stage (get(card.id).example).
+
+def browse(archetype: Archetype | None = None) -> list[ReferenceCard]:
+    """Survey the catalog: the references, optionally filtered to one class.
+
+    Stage 1 of the two-stage flow. Read each card's ``archetypes`` and the
+    *shape* of its golden questions (``Question.question``) to map a question
+    to the right reference, then move to the retrieve stage with
+    ``get(card.id)``. Verified answers (``Question.expected``) are not shown
+    here - they belong to the retrieve stage. ``archetype=None`` returns every
+    card.
+    """
+    if archetype is None:
+        return list(CARDS)
+    return [c for c in CARDS if archetype in c.archetypes]
+
+
+def catalog(archetype: Archetype | None = None) -> str:
+    """Render the catalog as text, organized by question archetype.
+
+    A readable "survey the stacks" view for the CLI/REPL: each archetype as a
+    header, the references that answer it underneath, and the *shape* of each
+    reference's golden questions. Answers (``Question.expected``) are
+    deliberately omitted - this is the find-the-book stage, not the
+    read-the-book stage. ``archetype=None`` renders the whole collection.
+    """
+    cards = browse(archetype)
+    archetypes = [archetype] if archetype is not None else list(Archetype)
+    lines: list[str] = []
+    for arch in archetypes:
+        members = [c for c in cards if arch in c.archetypes]
+        if not members:
+            continue
+        lines.append(arch.value)
+        for c in members:
+            lines.append(f"  {c.id}  (pypi: {c.pypi})")
+            lines.extend(f"    - {q.question}" for q in c.questions)
+    return "\n".join(lines).rstrip()

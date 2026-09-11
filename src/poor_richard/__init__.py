@@ -13,6 +13,8 @@ from poor_richard.registry import (
     ReferenceCard,
     UpdateModel,
     by_pypi,
+    browse,
+    catalog,
     get,
     search,
 )
@@ -24,12 +26,15 @@ __all__ = [
     "ReferenceCard",
     "UpdateModel",
     "by_pypi",
+    "browse",
+    "catalog",
+    "example",
     "get",
     "main",
     "search",
 ]
 
-USAGE = "usage: poor-richard [--help <module> | --example [id ...] | --ask <query>]"
+USAGE = "usage: poor-richard [--help <module> | --example [id ...] | --archetype <a[,b...]> | --ask <query>]"
 
 # Golden tests ship inside the package so examples work from the wheel too.
 _GOLDEN_TEST_FILE = Path(__file__).parent / "tests" / "test_golden.py"
@@ -43,6 +48,8 @@ def main(argv: list[str] | None = None) -> int:
             return _show_help(argv[1:])
         if argv[:1] == ["--example"]:
             return _print_examples(argv[1:])
+        if argv[:1] == ["--archetype"]:
+            return _browse(argv[1:])
         if argv[:1] == ["--ask"]:
             return _ask(argv[1:])
         return _print_cards()
@@ -113,6 +120,16 @@ def _example_body(card: ReferenceCard) -> str:
     return _derive_example(test_id)
 
 
+def example(card_id: str) -> str:
+    """Return the conventional usage snippet for a card (stage 2 of the flow).
+
+    The card's curated snippet if it has one, otherwise the card's golden test
+    re-emitted with its assertions as `# golden:` comments (so the verified
+    values stay visible). Same source as `poor-richard --example <id>`.
+    """
+    return _example_body(get(card_id))
+
+
 def _print_examples(args: list[str]) -> int:
     matched, unknown = _resolve_names(args)
     if unknown:
@@ -129,6 +146,30 @@ def _print_examples(args: list[str]) -> int:
         header = f"# poor-richard: {card.name} (pypi: {card.pypi}, {card.license})"
         blocks.append(f"{header}\n# {card.provenance}\n{body}")
     print("\n\n".join(blocks))
+    return 0
+
+
+def _browse(args: list[str]) -> int:
+    """Render the catalog filtered by one or more archetypes (stage 1)."""
+    if len(args) != 1:
+        print(USAGE, file=sys.stderr)
+        return 2
+    names = [n.strip() for n in args[0].split(",") if n.strip()]
+    archetypes: list[Archetype] = []
+    for name in names:
+        try:
+            archetypes.append(Archetype(name))
+        except ValueError:
+            valid = ", ".join(a.value for a in Archetype)
+            print(f"poor-richard: unknown archetype: {name!r} (choose from: {valid})", file=sys.stderr)
+            return 2
+    if not archetypes:
+        print(USAGE, file=sys.stderr)
+        return 2
+    if len(archetypes) == 1:
+        print(catalog(archetypes[0]))
+    else:
+        print("\n\n".join(catalog(a) for a in archetypes))
     return 0
 
 

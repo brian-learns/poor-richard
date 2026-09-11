@@ -16,7 +16,7 @@ from pathlib import Path
 import pytest
 
 import poor_richard
-from poor_richard import CARDS, by_pypi, get, search
+from poor_richard import CARDS, Archetype, browse, by_pypi, catalog, example, get, search
 from poor_richard import _derive_example
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -189,6 +189,45 @@ def test_search_no_match():
     assert search("the of and") == []  # stopwords only
 
 
+def test_browse_all():
+    assert browse() == list(CARDS)
+
+
+def test_browse_filters_by_archetype():
+    lookups = browse(Archetype.LOOKUP)
+    assert lookups and len(lookups) < len(CARDS)
+    assert all(Archetype.LOOKUP in c.archetypes for c in lookups)
+    assert get("pycountry") in lookups          # a lookup card is present
+    assert get("molmass") not in lookups        # a compute-only card is not
+
+
+def test_catalog_shows_shapes_not_answers():
+    text = catalog()
+    for c in CARDS:                              # every question shape is shown
+        for q in c.questions:
+            assert q.question in text
+    lines = {ln.strip().lstrip("-").strip() for ln in text.splitlines() if ln.strip()}
+    for c in CARDS:                              # no answer is emitted as its own line
+        for q in c.questions:
+            assert q.expected.strip() not in lines
+
+
+def test_catalog_scoped_to_one_archetype():
+    look = catalog(Archetype.LOOKUP)
+    assert look.splitlines()[0] == "lookup"
+    headers = [ln for ln in look.splitlines() if not ln.startswith(" ")]
+    assert headers == ["lookup"]                 # no other archetype sections
+
+
+def test_example_derives_when_not_curated():
+    # a card with no curated .example still yields a runnable snippet
+    pyc = example("pycountry")
+    assert pyc.strip() and "import pycountry" in pyc
+    assert "golden" in pyc                       # verified values stay visible
+    # a curated card returns its hand-written snippet
+    assert example("mido").strip()
+
+
 def test_console_ask(capsys):
     assert poor_richard.main(["--ask", "molar", "mass", "of", "water"]) == 0
     out = capsys.readouterr().out
@@ -196,6 +235,22 @@ def test_console_ask(capsys):
     assert lines[0].endswith("molmass") and lines[0].split()[0] == "1.03"
     assert "18.015" not in out  # ranking only: no answers, no examples
     assert poor_richard.main(["--ask"]) == 2
+
+
+def test_console_browse(capsys):
+    assert poor_richard.main(["--archetype", "lookup"]) == 0
+    out = capsys.readouterr().out
+    assert out.splitlines()[0] == "lookup"
+    assert "pycountry" in out
+    assert "18.015" not in out  # stage 1: shapes only, no answers
+    # multiple archetypes, comma-separated
+    assert poor_richard.main(["--archetype", "lookup,convert"]) == 0
+    out = capsys.readouterr().out
+    headers = [ln for ln in out.splitlines() if not ln.startswith(" ")]
+    assert "lookup" in headers and "convert" in headers
+    # usage errors
+    assert poor_richard.main(["--archetype"]) == 2
+    assert poor_richard.main(["--archetype", "bogus"]) == 2
 
 
 def test_console_script_runs(capsys):

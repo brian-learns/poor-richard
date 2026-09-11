@@ -116,9 +116,13 @@ see it.
 
 ### Stage 2 — retrieve: read the reference
 
-Unchanged. `get(id)` / `by_pypi(name)` → card; `card.example` is the
-conventional call with the verified answer (curated or derived from the
-golden test). This is where the answer is revealed.
+`get(id)` / `by_pypi(name)` → card. `example(id)` returns the conventional
+call with the verified answer — the card's curated snippet, or its golden
+test re-emitted with the assertions as `# golden:` comments (same source as
+`poor-richard --example <id>`). This is where the answer is revealed.
+`example()` is a new thin accessor: the `card.example` field holds only the
+curated override (5 of 55 cards), so the derived-from-test snippet is
+surfaced via the function, not the field.
 
 ### Fallback — fuzzy search
 
@@ -135,12 +139,12 @@ the agent from taking it.
 Confident classification (the encouraged path):
 
 ```python
-from poor_richard import browse, get, Archetype
+from poor_richard import browse, example, get, Archetype
 
 for card in browse(Archetype.LOOKUP):      # stage 1: survey the class
     ...   # agent reads card.questions shapes, picks the match
 card = get("pycountry")                    # stage 2: retrieve
-print(card.example)                        # verified call + answer
+print(example(card.id))                    # verified call + answer
 ```
 
 Uncertain (the fallback):
@@ -161,7 +165,7 @@ around the two stages. Current → proposed mapping (shape is open, see
 |---|---|---|
 | `poor-richard` | `catalog()` | stage 1: the collection by class |
 | `poor-richard --archetype <a[,b…]>` | `catalog(Archetype.<a>)` | stage 1, filtered |
-| `poor-richard --example <id…>` | `get(id).example` | stage 2 (unchanged) |
+| `poor-richard --example <id…>` | `example(id)` | stage 2 (CLI unchanged) |
 | `poor-richard --ask <terms>` | `search(terms)` | fallback (demoted) |
 
 `--ask` is kept (it is the CLI face of the load-bearing `search()`), but it is
