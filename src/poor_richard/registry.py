@@ -516,6 +516,33 @@ CARDS: tuple[ReferenceCard, ...] = (
         "Already a transitive dependency of workalendar.",
     ),
     ReferenceCard(
+        id="lunardate",
+        name="lunardate",
+        pypi="lunardate",
+        import_name="lunardate",
+        archetypes=(_A.CONVERT, _A.TEMPORAL,),
+        provenance="Bundled YEAR_INFOS table: 200 years (1900–2099) of lunar month lengths and "
+        "leap-month encodings of the astronomical Chinese calendar (derived from the C program `lunar`)",
+        keywords="cny spring festival lunar new year mid-autumn",
+        update_model=_U.SNAPSHOT,
+        offline=True,
+        offline_verified=True,
+        footprint="20 KB (single module, no dependencies)",
+        native_deps="none",
+        license="GPL-3.0-or-later",
+        questions=(
+            Question("Chinese date for 2024-02-10?", "1st day of month 1, year 2024 (Chinese New Year 2024)", "verified", "test_lunardate"),
+            Question("Chinese date for 2024-09-17?", "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)", "verified", "test_lunardate"),
+            Question("Which month is leap in the Chinese year 2025?", "the 6th month (2025-07-25 .. 2025-08-22, 29 days)", "verified", "test_lunardate"),
+            Question("Which month is leap in the Chinese year 2023?", "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)", "verified", "test_lunardate"),
+        ),
+        notes="0.3.0 API: from_solar_date/to_solar_date/leap_month_for_year — the camelCase "
+        "fromSolarDate/toSolarDate/leapMonthForYear are deprecated and emit DeprecationWarning. "
+        "Covered range is [1900, 2100); outside it raises ValueError('year out of range'). "
+        "No zodiac (animal) API despite the calendar's fame for it. GPL-3.0 — installed by "
+        "explicit maintainer decision (opt-in).",
+    ),
+    ReferenceCard(
         id="icalendar",
         name="icalendar",
         pypi="icalendar",

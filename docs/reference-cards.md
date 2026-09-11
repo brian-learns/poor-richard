@@ -136,12 +136,12 @@ natural query misses, fix the card's provenance/notes/keywords before adding
 machinery (raw `help()`/pydoc text was measured and rejected in issue #2:
 it buries the right cards and churns on every library upgrade).
 
-**Status (2026-09):** all 54 cards have passing offline golden examples; 98
+**Status (2026-09):** all 55 cards have passing offline golden examples; 102
 verified questions; the ephem moon-phase question is an xfail canary (see §7).
 
 ## 5. Card table
 
-Source of truth: `poor_richard.registry.CARDS` (54 entries incl. the auxiliary).
+Source of truth: `poor_richard.registry.CARDS` (55 entries incl. the auxiliary).
 `uv run poor-richard` prints it.
 
 | id | pypi | archetypes | offline | footprint | license |
@@ -166,6 +166,7 @@ Source of truth: `poor_richard.registry.CARDS` (54 entries incl. the auxiliary).
 | python-dateutil | python-dateutil | parse, temporal | ⚙ verified | 752 KB | Apache-2.0/BSD |
 | workalendar | workalendar | temporal | ⚙ verified | 1.4 MB | MIT |
 | convertdate | convertdate | convert, temporal | ⚙ verified | 400 KB | MIT |
+| lunardate | lunardate | convert, temporal | ⚙ verified | 20 KB | GPL-3.0-or-later |
 | icalendar | icalendar | parse, generate | ⚙ verified | 4.1 MB | BSD-2 |
 | iso4217 | iso4217 | lookup | ⚙ verified | 68 KB | Public domain |
 | python-stdnum | python-stdnum | validate | ⚙ verified | 4.3 MB | LGPL |
@@ -214,7 +215,6 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
 | `flatlib` / `kerykeion` | astrology | listed in `reference-libraries.md` but not yet installed (Swiss Ephemeris stack; `pyswisseph` replaced by installed `pysweph`) |
 | `rfc3987` | formats | IRI parsing — **GPL-3+**, excluded from default install (opt-in candidate) |
 | `pysolar` | astronomy | solar position — **GPL**, excluded from default install (opt-in candidate) |
-| `lunardate` | calendars | Gregorian ↔ Chinese (lunisolar) conversion, leap months, zodiac — **GPL-3.0**, excluded from default install (opt-in candidate) |
 
 > **Hallucinated packages** — `iana-registries` and `pybusday` do not exist on
 > PyPI (both surfaced from AI-generated library lists). Real alternatives for
@@ -308,24 +308,30 @@ From research (see conversation 2026-09); none in `pyproject.toml` yet:
     base cells. The v4 Python API is flat (`latlng_to_cell`, `cell_to_latlng`;
     the old `geo_to_h3` names are gone). Spec regression vectors ship in the
     h3 repo's `tests/cli/`.
-25. **`icalendar` `from_ical` returns what you feed it** — a bare VEVENT
+25. **`lunardate` 0.3.0 API rename + hard range** — `from_solar_date` /
+    `to_solar_date` / `leap_month_for_year` replaced the camelCase
+    `fromSolarDate` / `toSolarDate` / `leapMonthForYear`, which now only
+    emit `DeprecationWarning` (easy to miss in warning-dense test output).
+    The bundled table covers **[1900, 2100)** only; outside it raises
+    `ValueError("year out of range")`. No zodiac (animal) API.
+26. **`icalendar` `from_ical` returns what you feed it** — a bare VEVENT
     (no VCALENDAR wrapper) returns an `Event`, not a `Calendar`; integer
     indexing then fails on the property dict. `to_ical()` returns CRLF bytes,
     and 7.x hard-depends on `tzdata` for TZID resolution.
-26. **EPSG:4979 is NOT geocentric** — it is WGS 84 *geodetic 3D* (lat, lon,
+27. **EPSG:4979 is NOT geocentric** — it is WGS 84 *geodetic 3D* (lat, lon,
     ellipsoidal height); WGS 84 *geocentric* (ECEF) is **EPSG:4328**.
     `Transformer.from_crs("EPSG:4326", "EPSG:4979")` therefore selects a
     "Null geographic offset" and returns the input unchanged (z dropped),
     and 4326→4328 also drops z on 2-D input — source `EPSG:4979`
     (lat, lon, h) into `EPSG:4328` for full ECEF. Related: UTM zone n's
     central meridian is 6n−183 (zone 31N is +3, not −3).
-27. **`uniseg` top-level module is empty** — `import uniseg` exposes only
+28. **`uniseg` top-level module is empty** — `import uniseg` exposes only
     `unidata_version`/`version`; the API lives in `uniseg.graphemecluster`
     (`.grapheme_clusters`), `uniseg.wordbreak` (`.words`),
     `uniseg.sentencebreak` (`.sentences`), `uniseg.linebreak`
     (`.line_break_units`). The PyPI metadata carries no license field — the
     MIT license ships in the wheel's `dist-info/licenses/`.
-28. **`Unidecode` vs `text-unidecode`** — two different PyPI packages:
+29. **`Unidecode` vs `text-unidecode`** — two different PyPI packages:
     `Unidecode` (GPL-2.0-or-later, installed) and `text-unidecode` (kmike's
     port of Perl Text::Unidecode, Artistic/GPL dual). Unidecode's table is
     language-blind: CJK maps to pinyin regardless of the source language

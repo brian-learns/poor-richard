@@ -371,6 +371,32 @@ def test_convertdate():
     assert _expected("convertdate", "Mayan Long Count for 2012-12-21?") == "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)"
 
 
+def test_lunardate():
+    from lunardate import LunarDate
+
+    # Chinese New Year 2024 = 2024-02-10 (published: 1st day of the 1st month)
+    assert LunarDate.from_solar_date(2024, 2, 10) == LunarDate(2024, 1, 1)
+    # Chinese New Year 2025 = 2025-01-29
+    assert LunarDate.from_solar_date(2025, 1, 29) == LunarDate(2025, 1, 1)
+    # Mid-Autumn Festival 2024 = 15th day of the 8th month = 2024-09-17
+    assert LunarDate.from_solar_date(2024, 9, 17) == LunarDate(2024, 8, 15)
+    # Year 2025 has a leap 6th month: 2025-07-25 .. 2025-08-22 (29 days, published)
+    assert LunarDate.leap_month_for_year(2025) == 6
+    assert LunarDate(2025, 6, 1, True).to_solar_date() == date(2025, 7, 25)
+    assert LunarDate(2025, 6, 29, True).to_solar_date() == date(2025, 8, 22)
+    # Year 2023 has a leap 2nd month: 2023-03-22 .. 2023-04-19 (29 days, published)
+    assert LunarDate.leap_month_for_year(2023) == 2
+    assert LunarDate(2023, 2, 1, True).to_solar_date() == date(2023, 3, 22)
+    # Covered range is [1900, 2100)
+    assert LunarDate(1900, 1, 1).to_solar_date() == date(1900, 1, 31)
+    with pytest.raises(ValueError, match="year out of range"):
+        LunarDate(1899, 1, 1).to_solar_date()
+    assert _expected("lunardate", "Chinese date for 2024-02-10?") == "1st day of month 1, year 2024 (Chinese New Year 2024)"
+    assert _expected("lunardate", "Chinese date for 2024-09-17?") == "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)"
+    assert _expected("lunardate", "Which month is leap in the Chinese year 2025?") == "the 6th month (2025-07-25 .. 2025-08-22, 29 days)"
+    assert _expected("lunardate", "Which month is leap in the Chinese year 2023?") == "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)"
+
+
 def test_icalendar():
     import zoneinfo
     from datetime import timedelta
