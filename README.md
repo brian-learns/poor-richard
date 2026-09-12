@@ -29,6 +29,8 @@ tests need a data fetch or a system libpostal.
   (8 tasks, scoring grid, known hazards)
 - `src/poor_richard/registry.py` — the machine-readable reference cards
   (provenance, update model, offline status, footprint, license, golden questions)
+- `src/poor_richard/pra/` — the lazy, discoverable import front-end: `dir()`
+  lists every carded library, `pra.<name>` imports it on demand
 - `src/poor_richard/.agents/skills/poor-richard/SKILL.md` — the agent skill
   (hax/agents convention): how a shell- or session-based agent uses the
   almanack; ships inside the package
@@ -79,4 +81,13 @@ from poor_richard import CARDS, get
 card = get("pycountry")
 card.provenance      # "ISO 3166-1/2/3, 639-3, 4217, 15924 ..."
 card.questions       # golden questions + known-correct answers
+```
+
+Every carded library is also reachable through one lazy namespace — handy in a
+persistent session or notebook, where `dir()` is the "what's installed?" answer:
+
+```python
+from poor_richard import pra
+dir(pra)             # every carded import name, e.g. 'pycountry', 'molmass', 'Bio'
+pra.shapely          # imports just that library, on demand
 ```

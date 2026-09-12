@@ -28,10 +28,12 @@ search("molar mass of water")          # [(1.03, <molmass>, <Question>), ...]
 q = search("molar mass of water")[0][2]
 q.expected                             # "18.015 g/mol" — verified, offline
 get("molmass").notes                   # API-drift guardrails, in plain words
-import molmass                         # then do the real work directly
+import poor_richard.pra as pra         # dir(pra): what's importable, at a glance
+pra.molmass                            # lazy import — then do the real work
 ```
 Discovery, verified answers, and the conventional call pattern (from
-`card.example`) in three calls, then straight to the underlying library.
+`card.example`) in three calls, then straight to the underlying library. `pra`
+turns "what's installed?" into a single `dir(pra)` and makes the import lazy.
 
 **What matters to him.** (1) The Python API is the *only* interface that
 matters — CLI modes are invisible to him. (2) Compact, typed returns:
@@ -42,7 +44,9 @@ blocks, so a library that fetches at import time is simply broken for him.
 (5) Guardrails against his own stale training knowledge — the card `notes`
 (molmass 2026.x's `Formula(...).mass`, pysweph's non-backwards-compatible
 `calc_ut`) are the difference between a first-try success and a debugging
-spiral.
+spiral. (6) A discoverable import namespace — `dir(pra)` tells him exactly
+which libraries are importable and `pra.<name>` loads only what he touches, so
+"what's installed?" is one call instead of a guess.
 
 **Candidate features.** None urgent. The keyword field
 (future-directions §1) would sharpen his discovery step; everything else he

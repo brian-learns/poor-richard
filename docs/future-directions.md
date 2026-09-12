@@ -90,7 +90,9 @@ What that means for Poor Richard, tentatively:
   derived examples record the API at the pinned version — molmass 2026.x's
   `Formula(...).mass`, pysweph's non-backwards-compatible `calc_ut` —
   exactly the failure mode of a model writing code from stale training
-  knowledge).
+  knowledge). The `pra` front-end already covers the discovery half:
+  `dir(poor_richard.pra)` lists every carded import name and `pra.<name>`
+  lazy-imports it, so "what is importable?" and "import it" are one namespace.
 - **Offline-first fits their sandboxing.** NOOA's hardened configurations
   run cells under seccomp network blocks; a library that fetches at import
   time or on first use (the `financedatabase` default mode) would simply not

@@ -6,6 +6,7 @@ import os
 import sys
 from pathlib import Path
 
+from poor_richard import pra
 from poor_richard.registry import (
     CARDS,
     Archetype,
@@ -32,6 +33,7 @@ __all__ = [
     "get",
     "main",
     "search",
+    "pra",
 ]
 
 USAGE = "usage: poor-richard [--help <module> | --example [id ...] | --archetype <a[,b...]> | --ask <query>]"
