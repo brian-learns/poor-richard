@@ -22,7 +22,6 @@ from poor_richard.registry import (
 )
 
 __all__ = [
-    "CARDS",
     "Archetype",
     "Question",
     "ReferenceCard",
