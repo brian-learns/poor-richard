@@ -2185,6 +2185,7 @@ dependencies = [
 [package.optional-dependencies]
 full = [
     { name = "financedatabase" },
+    { name = "postal" },
     { name = "pypostal-multiarch" },
 ]
 
@@ -2237,6 +2238,7 @@ requires-dist = [
     { name = "periodictable", specifier = ">=2.1.0" },
     { name = "phonenumbers", specifier = ">=9.0.38" },
     { name = "pint", specifier = ">=0.25.3" },
+    { name = "postal", marker = "extra == 'full'", specifier = ">=1.1.11" },
     { name = "pycountry", specifier = ">=26.2.16" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pymeeus", specifier = ">=0.5.12" },
@@ -2274,6 +2276,15 @@ dev = [
     { name = "ty", specifier = ">=0.0.80" },
     { name = "vulture", specifier = ">=2.16" },
 ]
+
+[[package]]
+name = "postal"
+version = "1.1.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d8/a0/9f6479ebf9f186060aef11a8530433bb07895da381cc42acfa8c4d615a8b/postal-1.1.11.tar.gz", hash = "sha256:2c1a5de42fcaf742c99b9f0230594b990f050ad7a7ab1223c1bc5e7db91200a6", size = 21958, upload-time = "2025-10-29T05:29:39.606Z" }
 
 [[package]]
 name = "protobuf"

@@ -71,6 +71,7 @@ dependencies = [
 full = [
     "financedatabase>=2.4.0",
     "pypostal-multiarch>=1.0.3",
+    "postal>=1.1.11",
 ]
 
 [project.scripts]
