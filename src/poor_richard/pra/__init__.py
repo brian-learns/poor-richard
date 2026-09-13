@@ -6,17 +6,20 @@ one library on demand, and ``dir()`` / REPL tab-completion list them all.
 """
 
 import importlib
+from types import ModuleType
 
 from poor_richard.registry import CARDS
 
 __all__ = sorted({c.import_name for c in CARDS})
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> ModuleType:
+    """Import a carded library on demand; anything else raises AttributeError."""
     if name in __all__:
         return importlib.import_module(name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:
+    """List every carded library's import name for dir() / tab-completion."""
     return sorted(__all__)

@@ -63,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _print_cards() -> int:
+    """Print the full registry table (the default console output)."""
     verified = sum(1 for c in CARDS for q in c.questions if q.status == "verified")
     print(f"{'id':<20} {'pypi':<22} {'archetypes':<28} {'offline':<15} license")
     for card in CARDS:
@@ -114,6 +115,7 @@ def _derive_example(test_id: str) -> str:
 
 
 def _example_body(card: ReferenceCard) -> str:
+    """The card's curated snippet, else its golden test re-emitted as a snippet."""
     if card.example:
         return card.example.rstrip("\n")
     test_id = next(
@@ -134,6 +136,7 @@ def example(card_id: str) -> str:
 
 
 def _print_examples(args: list[str]) -> int:
+    """Print usage examples for the matched cards (stage 2 of the flow)."""
     matched, unknown = _resolve_names(args)
     if unknown:
         for name in sorted(unknown):
@@ -191,6 +194,7 @@ def _ask(args: list[str]) -> int:
 
 
 def _show_help(args: list[str]) -> int:
+    """Print help() for one card's library, resolved by id or PyPI name."""
     if len(args) != 1:
         print(USAGE, file=sys.stderr)
         return 2

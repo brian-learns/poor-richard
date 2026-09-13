@@ -83,6 +83,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "bandit>=1.9.4",
+    "interrogate>=1.7.0",
     "pipdeptree>=4.2.5",
     "pytest>=9.1.1",
     "refurb>=2.3.1",
@@ -111,20 +112,26 @@ select = [
     "S",   # Bandit Automated Security checks
     "I",   # Isort (enforces clean import sorting structures)
     "N",   # PEP8 Naming convention enforcement
-    "RUF"  # Ruff-specific absolute modern rules
+    "RUF",  # Ruff-specific absolute modern rules
+    "ANN",  # Flake8-annotations (fails on missing type hints)
 ]
 ignore = [
     "S101", # Allows 'assert' statements for pytest modules
-    "E501"  # Let the formatter handle long agent lines, don't trigger lint errors
+    "E501",  # Let the formatter handle long agent lines, don't trigger lint errors
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Ignore missing public return type hints for any files in the tests/ directory
+"src/poor_richard/tests/**/*.py" = ["ANN"]
 
 [tool.bandit]
 skips = ["B101", "B404", "B602"]
 
 [tool.interrogate]
 fail-under = 90
-exclude = ["tests"]
+exclude = ["src/poor_richard/tests/*"]
 ignore-init-method = true
 ignore-module = true
 

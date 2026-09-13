@@ -154,8 +154,8 @@ def test_postal():
         pytest.skip("system libpostal.so.1 not found")
     _point_libpostal_at_data()
     try:
-        from postal.expand import expand_address  # ty: ignore[unresolved-import]  # optional 'full' extra
-        from postal.parser import parse_address  # ty: ignore[unresolved-import]
+        from postal.expand import expand_address
+        from postal.parser import parse_address
     except ImportError:
         pytest.skip("pypostal-multiarch not installed")
 
@@ -1026,7 +1026,7 @@ def test_pysweph():
 
 def test_financedatabase():
     try:
-        import financedatabase  # ty: ignore[unresolved-import]  # optional 'full' extra
+        import financedatabase
     except ImportError:
         pytest.skip("financedatabase not installed (optional 'full' extra)")
     from pathlib import Path

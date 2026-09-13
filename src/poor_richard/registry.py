@@ -64,6 +64,8 @@ class Question:
 
 @dataclass(frozen=True)
 class ReferenceCard:
+    """One reference library: how to find it, what it covers, and its golden questions."""
+
     id: str  # stable slug
     name: str
     pypi: str  # PyPI distribution name
@@ -1615,6 +1617,7 @@ _MIN_SCORE = 0.25
 
 
 def _tokens(text: str) -> set[str]:
+    """Word tokens of `text`, lowercased, stopwords dropped, plurals folded."""
     out: set[str] = set()
     for t in _TOKEN.findall(text.lower()):
         if t in _STOP:
@@ -1627,6 +1630,7 @@ def _tokens(text: str) -> set[str]:
 
 
 def _card_text(card: ReferenceCard) -> str:
+    """The searchable text of a card: name-like fields plus all question text."""
     parts = [card.name, card.pypi, card.import_name, card.provenance, card.keywords, card.notes]
     parts += [f"{q.question} {q.expected}" for q in card.questions]
     return " ".join(parts)
