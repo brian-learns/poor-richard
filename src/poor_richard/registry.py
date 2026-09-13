@@ -14,19 +14,20 @@ from __future__ import annotations
 
 import difflib
 import re
-from pydantic.dataclasses import dataclass
 from enum import Enum
 
+from pydantic.dataclasses import dataclass
+
 __all__ = [
+    "CARDS",
     "Archetype",
-    "UpdateModel",
     "Question",
     "ReferenceCard",
-    "CARDS",
-    "get",
-    "by_pypi",
+    "UpdateModel",
     "browse",
+    "by_pypi",
     "catalog",
+    "get",
     "search",
 ]
 
@@ -123,8 +124,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         questions=(
             Question("ISO 639-3 code for ISO 639-1 'de'?", "deu (639-2/B is 'ger')", "verified", "test_iso639"),
         ),
-        notes="ALL_LANGUAGES is a set of Language(part1, part2b, part2t, part3, name); "
-        "there is no Lang() constructor.",
+        notes="ALL_LANGUAGES is a set of Language(part1, part2b, part2t, part3, name); there is no Lang() constructor.",
     ),
     ReferenceCard(
         id="babel",
@@ -143,9 +143,16 @@ CARDS: tuple[ReferenceCard, ...] = (
         license="BSD-3-Clause",
         questions=(
             Question("English display name for locale 'de'?", "German", "verified", "test_babel"),
-            Question("Russian plural categories for 2, 5, 21?", "few, many, one (CLDR ru rules)", "verified", "test_babel"),
+            Question(
+                "Russian plural categories for 2, 5, 21?", "few, many, one (CLDR ru rules)", "verified", "test_babel"
+            ),
             Question("Format 1234.5 in en_US?", "1,234.5", "verified", "test_babel"),
-            Question("Format 1234.50 USD in de_DE?", "1.234,50 $ (U+00A0 no-break space before the symbol)", "verified", "test_babel"),
+            Question(
+                "Format 1234.50 USD in de_DE?",
+                "1.234,50 $ (U+00A0 no-break space before the symbol)",
+                "verified",
+                "test_babel",
+            ),
             Question("Full date for 2026-02-05 in 'en'?", "Thursday, February 5, 2026", "verified", "test_babel"),
         ),
         notes="2.18: plural evaluation is Locale('ru').plural_form(n) - a property "
@@ -171,9 +178,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="2 MB",
         native_deps="none",
         license="MIT",
-        questions=(
-            Question("Capital of Japan?", "Tokyo", "verified", "test_countryinfo"),
-        ),
+        questions=(Question("Capital of Japan?", "Tokyo", "verified", "test_countryinfo"),),
         notes="Class is CountryInfo (capital-I); name()/capital() are methods, not attributes.",
     ),
     ReferenceCard(
@@ -190,9 +195,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="372 KB + 63 MB timezonefinder-data package",
         native_deps="none (mmap)",
         license="MIT",
-        questions=(
-            Question("IANA zone for (48.8566, 2.3522)?", "Europe/Paris", "verified", "test_timezonefinder"),
-        ),
+        questions=(Question("IANA zone for (48.8566, 2.3522)?", "Europe/Paris", "verified", "test_timezonefinder"),),
         notes="timezone_at() takes keyword-only lng/lat (not lon).",
     ),
     ReferenceCard(
@@ -273,10 +276,25 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="PROJ C library (bundled in the wheel)",
         license="MIT",
         questions=(
-            Question("Web Mercator (EPSG:3857) x at the antimeridian (180, 0)?", "20037508.3428 m (= R*pi)", "verified", "test_pyproj"),
+            Question(
+                "Web Mercator (EPSG:3857) x at the antimeridian (180, 0)?",
+                "20037508.3428 m (= R*pi)",
+                "verified",
+                "test_pyproj",
+            ),
             Question("UTM coordinates of (0, 0)?", "zone 31N: E 166021.4431 m, N 0 m", "verified", "test_pyproj"),
-            Question("ECEF coordinates of 10 E, 50 N, height 0?", "(4045456.41, 713323.11, 4862789.04) m", "verified", "test_pyproj"),
-            Question("Geodesic length of 1 degree of longitude at the equator?", "111319.4908 m (= a*pi/180)", "verified", "test_pyproj"),
+            Question(
+                "ECEF coordinates of 10 E, 50 N, height 0?",
+                "(4045456.41, 713323.11, 4862789.04) m",
+                "verified",
+                "test_pyproj",
+            ),
+            Question(
+                "Geodesic length of 1 degree of longitude at the equator?",
+                "111319.4908 m (= a*pi/180)",
+                "verified",
+                "test_pyproj",
+            ),
             Question("Geodesic distance Paris -> Tokyo?", "9735.3 km", "verified", "test_pyproj"),
         ),
         notes="EPSG:4979 is WGS 84 *geodetic 3D* (lat, lon, ellipsoidal height), NOT "
@@ -306,7 +324,9 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(
-            Question("Speed of light in vacuum, m/s?", "299792458 (exact by definition)", "verified", "test_scipy_constants"),
+            Question(
+                "Speed of light in vacuum, m/s?", "299792458 (exact by definition)", "verified", "test_scipy_constants"
+            ),
         ),
     ),
     ReferenceCard(
@@ -324,7 +344,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(
-            Question("Gravitational constant G?", "6.67430(15)e-11 m^3 kg^-1 s^-2 (CODATA 2018)", "verified", "test_astropy_constants"),
+            Question(
+                "Gravitational constant G?",
+                "6.67430(15)e-11 m^3 kg^-1 s^-2 (CODATA 2018)",
+                "verified",
+                "test_astropy_constants",
+            ),
         ),
         notes="astropy's built-in ephemeris (get_body, default 'builtin') is offline; "
         "used here as a cross-check oracle for ephem.",
@@ -343,9 +368,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="1.4 MB",
         native_deps="none",
         license="BSD",
-        questions=(
-            Question("1 kWh in joules?", "3.6e6 J", "verified", "test_pint"),
-        ),
+        questions=(Question("1 kWh in joules?", "3.6e6 J", "verified", "test_pint"),),
     ),
     ReferenceCard(
         id="chemformula",
@@ -362,7 +385,9 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("Composition and formula weight of H2SO4?", "H:2 S:1 O:4, 98.072 g/mol", "verified", "test_chemformula"),
+            Question(
+                "Composition and formula weight of H2SO4?", "H:2 S:1 O:4, 98.072 g/mol", "verified", "test_chemformula"
+            ),
         ),
         notes="v1.x: class is ChemFormula; formula_weight and element are properties "
         "(not methods); no molar_mass/elements attributes.",
@@ -381,9 +406,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="2.6 MB",
         native_deps="none",
         license="Public domain",
-        questions=(
-            Question("Fe atomic number and mass?", "26 / 55.845", "verified", "test_periodictable"),
-        ),
+        questions=(Question("Fe atomic number and mass?", "26 / 55.845", "verified", "test_periodictable"),),
         notes="v2.x: elements are top-level (pt.Fe); attrs are number, mass, lowercase name.",
     ),
     ReferenceCard(
@@ -401,7 +424,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(
-            Question("(2.0 +/- 0.1) * (3.0 +/- 0.1)?", "6.0 +/- 0.3606 (independent errors)", "verified", "test_uncertainties"),
+            Question(
+                "(2.0 +/- 0.1) * (3.0 +/- 0.1)?",
+                "6.0 +/- 0.3606 (independent errors)",
+                "verified",
+                "test_uncertainties",
+            ),
         ),
     ),
     ReferenceCard(
@@ -419,10 +447,24 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none (pure Python on numpy/scipy)",
         license="Apache-2.0",
         questions=(
-            Question("ISA sea-level temperature?", "288.15 K (15 degC, exact by definition)", "verified", "test_ambiance"),
-            Question("ISA sea-level pressure and density?", "101325 Pa, 1.225 kg/m3 (exact by definition)", "verified", "test_ambiance"),
-            Question("ISA speed of sound at sea level?", "340.29 m/s (sqrt(1.4 * R * T0))", "verified", "test_ambiance"),
-            Question("ISA temperature at the tropopause (22632 Pa)?", "216.65 K (11019 m geometric = 11 km geopotential)", "verified", "test_ambiance"),
+            Question(
+                "ISA sea-level temperature?", "288.15 K (15 degC, exact by definition)", "verified", "test_ambiance"
+            ),
+            Question(
+                "ISA sea-level pressure and density?",
+                "101325 Pa, 1.225 kg/m3 (exact by definition)",
+                "verified",
+                "test_ambiance",
+            ),
+            Question(
+                "ISA speed of sound at sea level?", "340.29 m/s (sqrt(1.4 * R * T0))", "verified", "test_ambiance"
+            ),
+            Question(
+                "ISA temperature at the tropopause (22632 Pa)?",
+                "216.65 K (11019 m geometric = 11 km geopotential)",
+                "verified",
+                "test_ambiance",
+            ),
         ),
         notes="Atmosphere(h) takes GEOMETRIC height; internally it converts to "
         "geopotential (H = h(1 - h/R)), so the ISA table values (e.g. 22632 Pa / "
@@ -446,9 +488,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="8.2 MB",
         native_deps="none",
         license="MIT",
-        questions=(
-            Question("Is 2025-07-04 a US holiday?", "True (Independence Day)", "verified", "test_holidays"),
-        ),
+        questions=(Question("Is 2025-07-04 a US holiday?", "True (Independence Day)", "verified", "test_holidays"),),
     ),
     ReferenceCard(
         id="python-dateutil",
@@ -464,9 +504,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="752 KB",
         native_deps="none",
         license="Apache-2.0 / BSD (dual)",
-        questions=(
-            Question("Parse '20250615T093000Z'?", "2025-06-15 09:30:00+00:00", "verified", "test_dateutil"),
-        ),
+        questions=(Question("Parse '20250615T093000Z'?", "2025-06-15 09:30:00+00:00", "verified", "test_dateutil"),),
     ),
     ReferenceCard(
         id="workalendar",
@@ -482,9 +520,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="1.4 MB",
         native_deps="none",
         license="MIT",
-        questions=(
-            Question("Next US working day after 2025-12-25?", "2025-12-26", "verified", "test_workalendar"),
-        ),
+        questions=(Question("Next US working day after 2025-12-25?", "2025-12-26", "verified", "test_workalendar"),),
         notes="v17: US calendar moved to workalendar.usa; use instance methods "
         "is_working_day()/add_working_days() (next_workday is gone).",
     ),
@@ -493,7 +529,10 @@ CARDS: tuple[ReferenceCard, ...] = (
         name="convertdate",
         pypi="convertdate",
         import_name="convertdate",
-        archetypes=(_A.CONVERT, _A.TEMPORAL,),
+        archetypes=(
+            _A.CONVERT,
+            _A.TEMPORAL,
+        ),
         provenance="Standard calendar algorithms: Julian Day arithmetic, Maimonides' Hebrew intercalation, "
         "tabular Islamic 30-year cycle, French Republican Year I epoch, Mayan GMT correlation constant 584283",
         keywords="hijri nowruz tzolkin persian haab",
@@ -504,11 +543,31 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("What is 2000-02-28 in the Julian calendar?", "2000-02-15 (13 days behind, 1900–2100)", "verified", "test_convertdate"),
-            Question("Hebrew date for 2024-10-03?", "1 Tishrei 5785 (first day of Rosh Hashanah)", "verified", "test_convertdate"),
-            Question("Islamic date for 622-07-19 (Gregorian)?", "1 Muharram 1 AH (Hijra epoch)", "verified", "test_convertdate"),
+            Question(
+                "What is 2000-02-28 in the Julian calendar?",
+                "2000-02-15 (13 days behind, 1900–2100)",
+                "verified",
+                "test_convertdate",
+            ),
+            Question(
+                "Hebrew date for 2024-10-03?",
+                "1 Tishrei 5785 (first day of Rosh Hashanah)",
+                "verified",
+                "test_convertdate",
+            ),
+            Question(
+                "Islamic date for 622-07-19 (Gregorian)?",
+                "1 Muharram 1 AH (Hijra epoch)",
+                "verified",
+                "test_convertdate",
+            ),
             Question("French Republican date for 1792-09-22?", "1 Brumaire Year I", "verified", "test_convertdate"),
-            Question("Mayan Long Count for 2012-12-21?", "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)", "verified", "test_convertdate"),
+            Question(
+                "Mayan Long Count for 2012-12-21?",
+                "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)",
+                "verified",
+                "test_convertdate",
+            ),
         ),
         notes="2.x API: each module exposes from_gregorian(y,m,d)/to_gregorian(...) via Julian Day "
         "(1.x's gregorian_to_<cal> functions are gone) and 1.x's chinese module was removed. "
@@ -522,7 +581,10 @@ CARDS: tuple[ReferenceCard, ...] = (
         name="lunardate",
         pypi="lunardate",
         import_name="lunardate",
-        archetypes=(_A.CONVERT, _A.TEMPORAL,),
+        archetypes=(
+            _A.CONVERT,
+            _A.TEMPORAL,
+        ),
         provenance="Bundled YEAR_INFOS table: 200 years (1900–2099) of lunar month lengths and "
         "leap-month encodings of the astronomical Chinese calendar (derived from the C program `lunar`)",
         keywords="cny spring festival lunar new year mid-autumn",
@@ -533,10 +595,30 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="GPL-3.0-or-later",
         questions=(
-            Question("Chinese date for 2024-02-10?", "1st day of month 1, year 2024 (Chinese New Year 2024)", "verified", "test_lunardate"),
-            Question("Chinese date for 2024-09-17?", "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)", "verified", "test_lunardate"),
-            Question("Which month is leap in the Chinese year 2025?", "the 6th month (2025-07-25 .. 2025-08-22, 29 days)", "verified", "test_lunardate"),
-            Question("Which month is leap in the Chinese year 2023?", "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)", "verified", "test_lunardate"),
+            Question(
+                "Chinese date for 2024-02-10?",
+                "1st day of month 1, year 2024 (Chinese New Year 2024)",
+                "verified",
+                "test_lunardate",
+            ),
+            Question(
+                "Chinese date for 2024-09-17?",
+                "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)",
+                "verified",
+                "test_lunardate",
+            ),
+            Question(
+                "Which month is leap in the Chinese year 2025?",
+                "the 6th month (2025-07-25 .. 2025-08-22, 29 days)",
+                "verified",
+                "test_lunardate",
+            ),
+            Question(
+                "Which month is leap in the Chinese year 2023?",
+                "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)",
+                "verified",
+                "test_lunardate",
+            ),
         ),
         notes="0.3.0 API: from_solar_date/to_solar_date/leap_month_for_year — the camelCase "
         "fromSolarDate/toSolarDate/leapMonthForYear are deprecated and emit DeprecationWarning. "
@@ -549,7 +631,10 @@ CARDS: tuple[ReferenceCard, ...] = (
         name="icalendar",
         pypi="icalendar",
         import_name="icalendar",
-        archetypes=(_A.PARSE, _A.GENERATE,),
+        archetypes=(
+            _A.PARSE,
+            _A.GENERATE,
+        ),
         provenance="RFC 5545 (iCalendar): content-line grammar, DATE-TIME/DURATION property values, "
         "VTIMEZONE rules; RFC 7265 (jCal) JSON encoding",
         keywords="ics vevent dtstart rrule jcal",
@@ -560,10 +645,30 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-2",
         questions=(
-            Question("SUMMARY of the RFC 5545 example VEVENT?", "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)", "verified", "test_icalendar"),
-            Question("Content line for a UTC DTSTART of 2008-03-15 13:30?", "DTSTART:20080315T133000Z (CRLF-terminated bytes)", "verified", "test_icalendar"),
-            Question("Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?", "EST −0500, EDT −0400 (matches IANA zoneinfo)", "verified", "test_icalendar"),
-            Question("How does the DURATION value 'PT2H30M' parse?", "timedelta(hours=2, minutes=30)", "verified", "test_icalendar"),
+            Question(
+                "SUMMARY of the RFC 5545 example VEVENT?",
+                "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)",
+                "verified",
+                "test_icalendar",
+            ),
+            Question(
+                "Content line for a UTC DTSTART of 2008-03-15 13:30?",
+                "DTSTART:20080315T133000Z (CRLF-terminated bytes)",
+                "verified",
+                "test_icalendar",
+            ),
+            Question(
+                "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?",
+                "EST −0500, EDT −0400 (matches IANA zoneinfo)",
+                "verified",
+                "test_icalendar",
+            ),
+            Question(
+                "How does the DURATION value 'PT2H30M' parse?",
+                "timedelta(hours=2, minutes=30)",
+                "verified",
+                "test_icalendar",
+            ),
         ),
         notes="Calendar.from_ical() on a bare VEVENT returns an Event, not a Calendar — "
         "reach properties via ev['SUMMARY'] and ev['DTSTART'].dt (integer indexing fails). "
@@ -632,7 +737,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="Apache-2.0",
         questions=(
-            Question("Parse +493012345678 (DE)?", "country_code=49, region=DE, type=FIXED_LINE", "verified", "test_phonenumbers"),
+            Question(
+                "Parse +493012345678 (DE)?",
+                "country_code=49, region=DE, type=FIXED_LINE",
+                "verified",
+                "test_phonenumbers",
+            ),
         ),
     ),
     # --------------------------------------------------------- formats/io
@@ -650,9 +760,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="32 KB",
         native_deps="libmagic (system)",
         license="MIT",
-        questions=(
-            Question("MIME of a minimal valid PNG?", "image/png", "verified", "test_python_magic"),
-        ),
+        questions=(Question("MIME of a minimal valid PNG?", "image/png", "verified", "test_python_magic"),),
         notes="Short header stubs may not match on minimal system libmagic builds; "
         "use complete file headers in golden questions.",
     ),
@@ -670,9 +778,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="252 KB",
         native_deps="none",
         license="MIT",
-        questions=(
-            Question("Format of 89 50 4E 47 0D 0A 1A 0A ...?", "image/png", "verified", "test_filetype"),
-        ),
+        questions=(Question("Format of 89 50 4E 47 0D 0A 1A 0A ...?", "image/png", "verified", "test_filetype"),),
     ),
     ReferenceCard(
         id="tldextract",
@@ -688,9 +794,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="452 KB",
         native_deps="none",
         license="BSD-3",
-        questions=(
-            Question("Public suffix of www.example.co.uk?", "co.uk", "verified", "test_tldextract"),
-        ),
+        questions=(Question("Public suffix of www.example.co.uk?", "co.uk", "verified", "test_tldextract"),),
         notes="Use TLDExtract(suffix_list_urls=()) to force the bundled snapshot; "
         "the default constructor may fetch an update on first use.",
     ),
@@ -709,7 +813,9 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("Parse an iPhone Safari 17 user-agent string?", "device=iPhone, os=iOS", "verified", "test_user_agents"),
+            Question(
+                "Parse an iPhone Safari 17 user-agent string?", "device=iPhone, os=iOS", "verified", "test_user_agents"
+            ),
         ),
     ),
     ReferenceCard(
@@ -717,7 +823,10 @@ CARDS: tuple[ReferenceCard, ...] = (
         name="email-validator",
         pypi="email-validator",
         import_name="email_validator",
-        archetypes=(_A.VALIDATE, _A.PARSE,),
+        archetypes=(
+            _A.VALIDATE,
+            _A.PARSE,
+        ),
         provenance="RFC 5322 address syntax grammar (with RFC 6531/6532 SMTPUTF8 support); "
         "domain handling per RFC 1123 dot-atom + IDNA2008 via the idna library",
         keywords="rfc5322 quoted atext displayname mailbox",
@@ -729,11 +838,25 @@ CARDS: tuple[ReferenceCard, ...] = (
         license="Unlicense (public domain)",
         questions=(
             Question("Is postmaster@example.com a valid RFC 5322 address?", "yes", "verified", "test_email_validator"),
-            Question("Is user.name+tag@example.com valid?", "yes (+ is a valid atext)", "verified", "test_email_validator"),
-            Question("Is user@exam_ple.com valid?", "no (underscore not allowed in domain labels)", "verified", "test_email_validator"),
+            Question(
+                "Is user.name+tag@example.com valid?", "yes (+ is a valid atext)", "verified", "test_email_validator"
+            ),
+            Question(
+                "Is user@exam_ple.com valid?",
+                "no (underscore not allowed in domain labels)",
+                "verified",
+                "test_email_validator",
+            ),
             Question("Is @example.com valid?", "no (empty local part)", "verified", "test_email_validator"),
-            Question("Normalize First.Local@Example.COM?", "First.Local@example.com (domain lowercased, local case kept)", "verified", "test_email_validator"),
-            Question("Domain of user@xn--r8jz45g.jp?", "例え.jp (IDNA2008-decoded)", "verified", "test_email_validator"),
+            Question(
+                "Normalize First.Local@Example.COM?",
+                "First.Local@example.com (domain lowercased, local case kept)",
+                "verified",
+                "test_email_validator",
+            ),
+            Question(
+                "Domain of user@xn--r8jz45g.jp?", "例え.jp (IDNA2008-decoded)", "verified", "test_email_validator"
+            ),
         ),
         notes="check_deliverability=False is the offline path; True performs live "
         "MX lookups via dnspython (DNS = network, blocked in the test suite). "
@@ -759,7 +882,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("TT Julian date at the J2000.0 epoch?", "2451545.0007429 (TT-UTC = 64.184 s)", "verified", "test_skyfield"),
+            Question(
+                "TT Julian date at the J2000.0 epoch?",
+                "2451545.0007429 (TT-UTC = 64.184 s)",
+                "verified",
+                "test_skyfield",
+            ),
         ),
         notes="v1.55: ts.utc(y, m, d, h) is numeric (string parsing broken); Time has "
         "no .jd attr - use .tt/.tai/.tdb floats. Planetary ephemerides must be "
@@ -780,8 +908,18 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="C extension",
         license="LGPL",
         questions=(
-            Question("Julian date anchor: float(Date('2000/1/1 12:00:00')) + 2415020.0?", "2451545.0 (J2000, exact)", "verified", "test_ephem_j2000_anchor"),
-            Question("Moon phase angle 2025-06-15 12:00 UTC?", "~228.8 deg (waning gibbous; pymeeus 228.8, astropy 228.2)", "candidate", "test_ephem_moon_phase"),
+            Question(
+                "Julian date anchor: float(Date('2000/1/1 12:00:00')) + 2415020.0?",
+                "2451545.0 (J2000, exact)",
+                "verified",
+                "test_ephem_j2000_anchor",
+            ),
+            Question(
+                "Moon phase angle 2025-06-15 12:00 UTC?",
+                "~228.8 deg (waning gibbous; pymeeus 228.8, astropy 228.2)",
+                "candidate",
+                "test_ephem_moon_phase",
+            ),
         ),
         notes="KNOWN BUG (2026-09): the 4.2.1 wheel returns wrong moon positions and "
         "an internally inconsistent phase (82.9 deg) on this platform; astropy and "
@@ -804,7 +942,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="C extension",
         license="MIT",
         questions=(
-            Question("ISS (TLE 25544, 2008) altitude at TLE epoch?", "342 km (within 300-450 km LEO band)", "verified", "test_sgp4"),
+            Question(
+                "ISS (TLE 25544, 2008) altitude at TLE epoch?",
+                "342 km (within 300-450 km LEO band)",
+                "verified",
+                "test_sgp4",
+            ),
         ),
         notes="Satrec.twoline2rv(line1, line2) returns a Satrec directly (no error "
         "tuple); sgp4_tsince(tmin) -> (error, r, v) in km, TEME frame.",
@@ -824,10 +967,14 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="Apache-2.0",
         questions=(
-            Question("Sunrise in New York (40.7128, -74.0060) on 2025-06-21?", "09:25 UTC (~05:25 EDT, June solstice)", "verified", "test_astral"),
+            Question(
+                "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?",
+                "09:25 UTC (~05:25 EDT, June solstice)",
+                "verified",
+                "test_astral",
+            ),
         ),
-        notes="v3.x: Observer(latitude, longitude) + astral.sun.sunrise(observer, date); "
-        "the v2 Sun class is gone.",
+        notes="v3.x: Observer(latitude, longitude) + astral.sun.sunrise(observer, date); the v2 Sun class is gone.",
     ),
     ReferenceCard(
         id="pymeeus",
@@ -844,10 +991,27 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="LGPL-3.0",
         questions=(
-            Question("Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?", "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)", "verified", "test_pymeeus"),
-            Question("Moon geocentric ecliptic position 2025-06-15 12:00 UTC?", "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)", "verified", "test_pymeeus"),
-            Question("2025 spring equinox (UTC)?", "2025-03-20 09:01:28 (published 09:01:54 UTC)", "verified", "test_pymeeus"),
-            Question("Julian date of the J2000.0 epoch?", "2451545.0 (2000-01-01 12:00 TT, exact by definition)", "verified", "test_pymeeus"),
+            Question(
+                "Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?",
+                "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)",
+                "verified",
+                "test_pymeeus",
+            ),
+            Question(
+                "Moon geocentric ecliptic position 2025-06-15 12:00 UTC?",
+                "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)",
+                "verified",
+                "test_pymeeus",
+            ),
+            Question(
+                "2025 spring equinox (UTC)?", "2025-03-20 09:01:28 (published 09:01:54 UTC)", "verified", "test_pymeeus"
+            ),
+            Question(
+                "Julian date of the J2000.0 epoch?",
+                "2451545.0 (2000-01-01 12:00 TT, exact by definition)",
+                "verified",
+                "test_pymeeus",
+            ),
         ),
         notes="Module and class share names: `from pymeeus import Sun` gives the MODULE; "
         "the class is `pymeeus.Sun.Sun` (same for Moon), and Epoch is "
@@ -874,9 +1038,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="95 MB installed (76 MB is a bundled htmlcov artifact; real code ~19 MB)",
         native_deps="none (needs networkx for the conversion graph)",
         license="BSD-3",
-        questions=(
-            Question("sRGB pure red -> CIE Lab?", "(53.23, 80.09, 67.20)", "verified", "test_colour"),
-        ),
+        questions=(Question("sRGB pure red -> CIE Lab?", "(53.23, 80.09, 67.20)", "verified", "test_colour"),),
         notes="The real package is 'colour-science' on PyPI; an unrelated toy package "
         "owns the name 'colour'. convert() graph node is 'CIE Lab' and returns "
         "scale-1 values (L in [0, 1]).",
@@ -918,10 +1080,14 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(
-            Question("Parse a .star file with a 2-row pixel array?", "columns pixel.x/pixel.y/pixel.intensity, values round-trip", "verified", "test_starfile"),
+            Question(
+                "Parse a .star file with a 2-row pixel array?",
+                "columns pixel.x/pixel.y/pixel.intensity, values round-trip",
+                "verified",
+                "test_starfile",
+            ),
         ),
-        notes="read() returns a DataBlock (pandas DataFrame); column names drop the "
-        "leading underscore.",
+        notes="read() returns a DataBlock (pandas DataFrame); column names drop the leading underscore.",
         example=(
             "import starfile\n"
             "from pathlib import Path\n"
@@ -955,7 +1121,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="BSD-3",
         questions=(
-            Question("Generate a CZML packet with one position sample?", "{'id': ..., 'position': {'epoch': ..., 'cartesian': [x, y, z]}}", "verified", "test_czml3"),
+            Question(
+                "Generate a CZML packet with one position sample?",
+                "{'id': ..., 'position': {'epoch': ..., 'cartesian': [x, y, z]}}",
+                "verified",
+                "test_czml3",
+            ),
         ),
         notes="3.x is pydantic-based: czml3.Packet(id=..., position=czml3.properties.Position(...)); "
         "serialize with model_dump(by_alias=True, exclude_none=True).",
@@ -994,7 +1165,9 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("Parse 'text/html; charset=utf-8'?", "(text, html, {charset: utf-8})", "verified", "test_mimeparse"),
+            Question(
+                "Parse 'text/html; charset=utf-8'?", "(text, html, {charset: utf-8})", "verified", "test_mimeparse"
+            ),
         ),
         notes="Abandoned (last release 2013): best_match() is broken on py3 "
         "(dict.has_key); parse_mime_type/parse_media_range work fine.",
@@ -1013,11 +1186,8 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="288 KB",
         native_deps="none",
         license="BSD-3",
-        questions=(
-            Question("Molar mass of H2O?", "18.015 g/mol", "verified", "test_molmass"),
-        ),
-        notes="2026.x API: top-level `molmass` is a module, not callable; "
-        "use `molmass.Formula('H2O').mass`.",
+        questions=(Question("Molar mass of H2O?", "18.015 g/mol", "verified", "test_molmass"),),
+        notes="2026.x API: top-level `molmass` is a module, not callable; use `molmass.Formula('H2O').mass`.",
     ),
     ReferenceCard(
         id="mido",
@@ -1034,10 +1204,14 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("Round-trip a note_on(60)/note_off(60) MIDI file?", "messages preserved on reload", "verified", "test_mido"),
+            Question(
+                "Round-trip a note_on(60)/note_off(60) MIDI file?",
+                "messages preserved on reload",
+                "verified",
+                "test_mido",
+            ),
         ),
-        notes="save() takes a filename, not a file object; filter MetaMessage "
-        "(isinstance) when iterating tracks.",
+        notes="save() takes a filename, not a file object; filter MetaMessage (isinstance) when iterating tracks.",
         example=(
             "import mido\n"
             "\n"
@@ -1066,9 +1240,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="1.7 MB",
         native_deps="none",
         license="BSD-3",
-        questions=(
-            Question("Particle with PDG code 13?", "mu-, mass 105.6583755 MeV", "verified", "test_particle"),
-        ),
+        questions=(Question("Particle with PDG code 13?", "mu-, mass 105.6583755 MeV", "verified", "test_particle"),),
         notes="Particle.from_pdgid(code) is the lookup path; mass is in MeV.",
     ),
     ReferenceCard(
@@ -1085,9 +1257,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="260 KB",
         native_deps="C extension",
         license="MIT",
-        questions=(
-            Question("Great-circle distance Paris -> London?", "343.9 km", "verified", "test_geographiclib"),
-        ),
+        questions=(Question("Great-circle distance Paris -> London?", "343.9 km", "verified", "test_geographiclib"),),
         notes="Geodesic.WGS84 is a ready-made instance (not a factory); "
         "Inverse() returns a dict - s12 is the distance in metres.",
     ),
@@ -1131,9 +1301,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="116 KB",
         native_deps="none",
         license="BSD",
-        questions=(
-            Question("Next XNYS business day after 2025-12-25?", "2025-12-26", "verified", "test_bizdays"),
-        ),
+        questions=(Question("Next XNYS business day after 2025-12-25?", "2025-12-26", "verified", "test_bizdays"),),
         notes="Calendar.load('PMC/XNYS') bridges to pandas_market_calendars; "
         "next-business-day is adjust_next()/adjust_previous().",
     ),
@@ -1151,9 +1319,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="1.1 MB",
         native_deps="none",
         license="MIT",
-        questions=(
-            Question("Encoding of a UTF-8 accented string?", "utf_8", "verified", "test_charset_normalizer"),
-        ),
+        questions=(Question("Encoding of a UTF-8 accented string?", "utf_8", "verified", "test_charset_normalizer"),),
         notes="UTF-8/ASCII detection is robust; the single-byte cp125x family is "
         "ambiguous for short samples (may return cp1250/cp1257 for cp1252 text).",
     ),
@@ -1171,9 +1337,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         footprint="428 KB",
         native_deps="none",
         license="BSD-3",
-        questions=(
-            Question("IDNA-encode the domain 例え.jp?", "xn--r8jz45g.jp", "verified", "test_idna"),
-        ),
+        questions=(Question("IDNA-encode the domain 例え.jp?", "xn--r8jz45g.jp", "verified", "test_idna"),),
     ),
     ReferenceCard(
         id="unidecode",
@@ -1245,7 +1409,12 @@ CARDS: tuple[ReferenceCard, ...] = (
         native_deps="none",
         license="MIT",
         questions=(
-            Question("XNYS valid sessions 2025-12-24..31?", "24, 26, 29, 30, 31 (no Christmas, no weekends)", "verified", "test_pandas_market_calendars"),
+            Question(
+                "XNYS valid sessions 2025-12-24..31?",
+                "24, 26, 29, 30, 31 (no Christmas, no weekends)",
+                "verified",
+                "test_pandas_market_calendars",
+            ),
         ),
         notes="4.6.1: valid_days(start, end) is the session API; holidays() "
         "returns an offset object in this version. Pins pandas < 3.",
@@ -1411,8 +1580,8 @@ CARDS: tuple[ReferenceCard, ...] = (
             "import networkx as nx\n"
             "\n"
             "g = nx.Graph()\n"
-            "g.add_edges_from([(\"sRGB\", \"CIEXYZ\"), (\"CIEXYZ\", \"sRGB\"), (\"CIEXYZ\", \"HSV\")])\n"
-            "# golden: nx.has_path(g, \"sRGB\", \"HSV\") is True\n"
+            'g.add_edges_from([("sRGB", "CIEXYZ"), ("CIEXYZ", "sRGB"), ("CIEXYZ", "HSV")])\n'
+            '# golden: nx.has_path(g, "sRGB", "HSV") is True\n'
         ),
     ),
 )
@@ -1440,10 +1609,7 @@ def by_pypi(pypi_name: str) -> ReferenceCard:
 # name-like fields. The corpus is a few KB, so a stdlib linear scan is
 # the right tool - no index, no extra dependency, fully offline.
 
-_STOP = frozenset(
-    "a an and at be by can do does for from how in is it its of on or "
-    "the to what which with".split()
-)
+_STOP = frozenset("a an and at be by can do does for from how in is it its of on or the to what which with".split())
 _TOKEN = re.compile(r"\w+")
 _MIN_SCORE = 0.25
 
@@ -1504,6 +1670,7 @@ def search(query: str, top: int = 3) -> list[tuple[float, ReferenceCard, Questio
 # map a question to a catalog class *before* retrieving. These show the shape
 # of each reference's questions, never the verified answers - the answers are
 # the retrieve stage (get(card.id).example).
+
 
 def browse(archetype: Archetype | None = None) -> list[ReferenceCard]:
     """Survey the catalog: the references, optionally filtered to one class.

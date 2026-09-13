@@ -16,8 +16,7 @@ from pathlib import Path
 import pytest
 
 import poor_richard
-from poor_richard import CARDS, Archetype, browse, by_pypi, catalog, example, get, search
-from poor_richard import _derive_example
+from poor_richard import CARDS, Archetype, _derive_example, browse, by_pypi, catalog, example, get, search
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -59,11 +58,7 @@ def _optional_packages():
     """pypi names in [project.optional-dependencies] — may be absent in a base install."""
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
     groups = pyproject.get("project", {}).get("optional-dependencies", {}).values()
-    return {
-        d.split(">=")[0].split("<=")[0].strip()
-        for group in groups
-        for d in group
-    }
+    return {d.split(">=")[0].split("<=")[0].strip() for group in groups for d in group}
 
 
 def test_import_names_resolvable():
@@ -107,14 +102,9 @@ def test_verified_answers_pinned_in_golden_tests():
                 continue
             fn = funcs.get(q.test_id)
             assert fn is not None, f"{card.id}: no test function {q.test_id}"
-            literals = {
-                n.value
-                for n in ast.walk(fn)
-                if isinstance(n, ast.Constant) and isinstance(n.value, str)
-            }
+            literals = {n.value for n in ast.walk(fn) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
             assert q.question in literals, (
-                f"{card.id}: {q.question!r} not pinned in {q.test_id}; "
-                f"add an _expected() assert"
+                f"{card.id}: {q.question!r} not pinned in {q.test_id}; add an _expected() assert"
             )
 
 
@@ -186,17 +176,17 @@ def test_browse_filters_by_archetype():
     lookups = browse(Archetype.LOOKUP)
     assert lookups and len(lookups) < len(CARDS)
     assert all(Archetype.LOOKUP in c.archetypes for c in lookups)
-    assert get("pycountry") in lookups          # a lookup card is present
-    assert get("molmass") not in lookups        # a compute-only card is not
+    assert get("pycountry") in lookups  # a lookup card is present
+    assert get("molmass") not in lookups  # a compute-only card is not
 
 
 def test_catalog_shows_shapes_not_answers():
     text = catalog()
-    for c in CARDS:                              # every question shape is shown
+    for c in CARDS:  # every question shape is shown
         for q in c.questions:
             assert q.question in text
     lines = {ln.strip().lstrip("-").strip() for ln in text.splitlines() if ln.strip()}
-    for c in CARDS:                              # no answer is emitted as its own line
+    for c in CARDS:  # no answer is emitted as its own line
         for q in c.questions:
             assert q.expected.strip() not in lines
 
@@ -205,14 +195,14 @@ def test_catalog_scoped_to_one_archetype():
     look = catalog(Archetype.LOOKUP)
     assert look.splitlines()[0] == "lookup"
     headers = [ln for ln in look.splitlines() if not ln.startswith(" ")]
-    assert headers == ["lookup"]                 # no other archetype sections
+    assert headers == ["lookup"]  # no other archetype sections
 
 
 def test_example_derives_when_not_curated():
     # a card with no curated .example still yields a runnable snippet
     pyc = example("pycountry")
     assert pyc.strip() and "import pycountry" in pyc
-    assert "golden" in pyc                       # verified values stay visible
+    assert "golden" in pyc  # verified values stay visible
     # a curated card returns its hand-written snippet
     assert example("mido").strip()
 

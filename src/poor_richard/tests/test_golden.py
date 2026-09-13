@@ -151,8 +151,8 @@ def test_postal():
         pytest.skip("system libpostal.so.1 not found")
     _point_libpostal_at_data()
     try:
-        from postal.parser import parse_address
         from postal.expand import expand_address
+        from postal.parser import parse_address
     except ImportError:
         pytest.skip("pypostal-multiarch not installed")
 
@@ -170,7 +170,10 @@ def test_postal():
     assert r["state"] == "dc"
     assert r["postcode"] == "20500"
     assert any("northwest" in alt for alt in expand_address("1600 Penn Ave NW"))
-    assert _expected("postal", "Parse '1600 Pennsylvania Avenue NW, Washington, DC 20500' (US)?") == "house_number=1600, road=pennsylvania avenue nw, city=washington, state=dc, postcode=20500"
+    assert (
+        _expected("postal", "Parse '1600 Pennsylvania Avenue NW, Washington, DC 20500' (US)?")
+        == "house_number=1600, road=pennsylvania avenue nw, city=washington, state=dc, postcode=20500"
+    )
 
 
 def test_pyproj():
@@ -211,7 +214,9 @@ def test_pyproj():
     g = pyproj.Geod(ellps="WGS84")
     s = g.inv(0.0, 0.0, 1.0, 0.0)[2]
     assert s == pytest.approx(6378137.0 * math.pi / 180.0, abs=1e-6)
-    assert _expected("pyproj", "Geodesic length of 1 degree of longitude at the equator?") == "111319.4908 m (= a*pi/180)"
+    assert (
+        _expected("pyproj", "Geodesic length of 1 degree of longitude at the equator?") == "111319.4908 m (= a*pi/180)"
+    )
 
     # Paris -> Tokyo: cross-check vs the geographiclib oracle already in the tree;
     # pyproj (PROJ/Karney) and geographiclib agree to full double precision.
@@ -222,6 +227,7 @@ def test_pyproj():
     s_gl = Geodesic.WGS84.Inverse(48.8566, 2.3522, 35.6762, 139.6503)["s12"]
     assert s == pytest.approx(s_gl, abs=1e-9)
     assert _expected("pyproj", "Geodesic distance Paris -> Tokyo?") == "9735.3 km"
+
 
 # ----------------------------------------------------------- physics/units
 
@@ -281,6 +287,7 @@ def test_uncertainties():
     assert abs(r.std_dev - 0.36055) < 1e-4
     assert _expected("uncertainties", "(2.0 +/- 0.1) * (3.0 +/- 0.1)?") == "6.0 +/- 0.3606 (independent errors)"
 
+
 def test_ambiance():
     from ambiance import Atmosphere
 
@@ -312,9 +319,15 @@ def test_ambiance():
     assert abs(at.speed_of_sound[0] - (gamma * R * T) ** 0.5) < 1e-6
 
     assert _expected("ambiance", "ISA sea-level temperature?") == "288.15 K (15 degC, exact by definition)"
-    assert _expected("ambiance", "ISA sea-level pressure and density?") == "101325 Pa, 1.225 kg/m3 (exact by definition)"
+    assert (
+        _expected("ambiance", "ISA sea-level pressure and density?") == "101325 Pa, 1.225 kg/m3 (exact by definition)"
+    )
     assert _expected("ambiance", "ISA speed of sound at sea level?") == "340.29 m/s (sqrt(1.4 * R * T0))"
-    assert _expected("ambiance", "ISA temperature at the tropopause (22632 Pa)?") == "216.65 K (11019 m geometric = 11 km geopotential)"
+    assert (
+        _expected("ambiance", "ISA temperature at the tropopause (22632 Pa)?")
+        == "216.65 K (11019 m geometric = 11 km geopotential)"
+    )
+
 
 # -------------------------------------------------------- temporal/financial
 
@@ -364,11 +377,17 @@ def test_convertdate():
     # End of the 13th b'ak'tun = 2012-12-21 (GMT correlation constant 584283)
     assert mayan.from_gregorian(2012, 12, 21) == (13, 0, 0, 0, 0)
     assert mayan.to_gregorian(13, 0, 0, 0, 0) == (2012, 12, 21)
-    assert _expected("convertdate", "What is 2000-02-28 in the Julian calendar?") == "2000-02-15 (13 days behind, 1900–2100)"
+    assert (
+        _expected("convertdate", "What is 2000-02-28 in the Julian calendar?")
+        == "2000-02-15 (13 days behind, 1900–2100)"
+    )
     assert _expected("convertdate", "Hebrew date for 2024-10-03?") == "1 Tishrei 5785 (first day of Rosh Hashanah)"
     assert _expected("convertdate", "Islamic date for 622-07-19 (Gregorian)?") == "1 Muharram 1 AH (Hijra epoch)"
     assert _expected("convertdate", "French Republican date for 1792-09-22?") == "1 Brumaire Year I"
-    assert _expected("convertdate", "Mayan Long Count for 2012-12-21?") == "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)"
+    assert (
+        _expected("convertdate", "Mayan Long Count for 2012-12-21?")
+        == "13.0.0.0.0 (end of the 13th b'ak'tun; GMT correlation)"
+    )
 
 
 def test_lunardate():
@@ -391,10 +410,22 @@ def test_lunardate():
     assert LunarDate(1900, 1, 1).to_solar_date() == date(1900, 1, 31)
     with pytest.raises(ValueError, match="year out of range"):
         LunarDate(1899, 1, 1).to_solar_date()
-    assert _expected("lunardate", "Chinese date for 2024-02-10?") == "1st day of month 1, year 2024 (Chinese New Year 2024)"
-    assert _expected("lunardate", "Chinese date for 2024-09-17?") == "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)"
-    assert _expected("lunardate", "Which month is leap in the Chinese year 2025?") == "the 6th month (2025-07-25 .. 2025-08-22, 29 days)"
-    assert _expected("lunardate", "Which month is leap in the Chinese year 2023?") == "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)"
+    assert (
+        _expected("lunardate", "Chinese date for 2024-02-10?")
+        == "1st day of month 1, year 2024 (Chinese New Year 2024)"
+    )
+    assert (
+        _expected("lunardate", "Chinese date for 2024-09-17?")
+        == "15th day of month 8, year 2024 (Mid-Autumn Festival 2024)"
+    )
+    assert (
+        _expected("lunardate", "Which month is leap in the Chinese year 2025?")
+        == "the 6th month (2025-07-25 .. 2025-08-22, 29 days)"
+    )
+    assert (
+        _expected("lunardate", "Which month is leap in the Chinese year 2023?")
+        == "the 2nd month (2023-03-22 .. 2023-04-19, 29 days)"
+    )
 
 
 def test_icalendar():
@@ -422,7 +453,10 @@ def test_icalendar():
     assert str(ev["SUMMARY"]) == "Meeting with Jeffrey"
     assert ev["DTSTART"].dt == datetime(2007, 9, 8, 13, 0, tzinfo=timezone.utc)
     assert ev["DTSTART"].to_ical() == b"20070908T130000Z"
-    assert _expected("icalendar", "SUMMARY of the RFC 5545 example VEVENT?") == "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)"
+    assert (
+        _expected("icalendar", "SUMMARY of the RFC 5545 example VEVENT?")
+        == "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)"
+    )
 
     # generation: exact content lines per RFC 5545 section 3.1/3.3.5
     e = Event()
@@ -436,7 +470,10 @@ def test_icalendar():
         b"DTEND:20080315T150000Z\r\n"
         b"END:VEVENT\r\n"
     )
-    assert _expected("icalendar", "Content line for a UTC DTSTART of 2008-03-15 13:30?") == "DTSTART:20080315T133000Z (CRLF-terminated bytes)"
+    assert (
+        _expected("icalendar", "Content line for a UTC DTSTART of 2008-03-15 13:30?")
+        == "DTSTART:20080315T133000Z (CRLF-terminated bytes)"
+    )
 
     # RFC 5545 section 3.6.1 VTIMEZONE example: America/New_York EST5EDT
     tz = Calendar.from_ical(
@@ -465,7 +502,10 @@ def test_icalendar():
     ny = zoneinfo.ZoneInfo("America/New_York")
     assert datetime(2007, 9, 8, 12, tzinfo=ny).utcoffset() == timedelta(hours=-4)
     assert datetime(2007, 1, 15, 12, tzinfo=ny).utcoffset() == timedelta(hours=-5)
-    assert _expected("icalendar", "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?") == "EST −0500, EDT −0400 (matches IANA zoneinfo)"
+    assert (
+        _expected("icalendar", "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?")
+        == "EST −0500, EDT −0400 (matches IANA zoneinfo)"
+    )
 
     # DATE-TIME / DURATION property values (RFC 5545 sections 3.3.5/3.3.6)
     assert vDuration.from_ical("PT2H30M") == timedelta(hours=2, minutes=30)
@@ -481,6 +521,7 @@ def test_iso4217():
     assert iso4217.Currency.usd.value == "USD"
     assert _expected("iso4217", "Minor-unit decimals for JPY?") == "0"
     assert _expected("iso4217", "ISO 4217 name for USD?") == "US Dollar"
+
 
 # ---------------------------------------------------------------- validate
 
@@ -512,18 +553,14 @@ def test_phonenumbers():
     assert phonenumbers.number_type(p) == phonenumbers.PhoneNumberType.FIXED_LINE
     assert _expected("phonenumbers", "Parse +493012345678 (DE)?") == "country_code=49, region=DE, type=FIXED_LINE"
 
+
 # --------------------------------------------------------------------- io
 
 
 def _minimal_png() -> bytes:
     def chunk(tag: bytes, data: bytes) -> bytes:
         # PNG chunk layout: length(4) + type(4) + data + crc32(type+data)(4)
-        return (
-            struct.pack(">I", len(data))
-            + tag
-            + data
-            + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
-        )
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
 
     return (
         b"\x89PNG\r\n\x1a\n"
@@ -571,6 +608,7 @@ def test_user_agents():
     assert ua.os.family == "iOS"
     assert _expected("user-agents", "Parse an iPhone Safari 17 user-agent string?") == "device=iPhone, os=iOS"
 
+
 # -------------------------------------------------------------- astronomy
 
 
@@ -588,7 +626,10 @@ def test_ephem_j2000_anchor():
 
     # float(Date) = JD - 2415020.0 (JD of 1900-01-01 12:00 UT); J2000 is exact
     assert float(ephem.Date("2000/1/1 12:00:00")) + 2415020.0 == 2451545.0
-    assert _expected("ephem", "Julian date anchor: float(Date('2000/1/1 12:00:00')) + 2415020.0?") == "2451545.0 (J2000, exact)"
+    assert (
+        _expected("ephem", "Julian date anchor: float(Date('2000/1/1 12:00:00')) + 2415020.0?")
+        == "2451545.0 (J2000, exact)"
+    )
 
 
 @pytest.mark.xfail(
@@ -638,11 +679,14 @@ def test_astral():
     sunrise = sunrise(obs, date(2025, 6, 21))  # UTC by default
     # ~05:25 EDT on the June solstice = ~09:25 UTC at ~-74 deg longitude
     assert 9.0 <= sunrise.hour <= 10 and sunrise.tzinfo is not None
-    assert _expected("astral", "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?") == "09:25 UTC (~05:25 EDT, June solstice)"
+    assert (
+        _expected("astral", "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?")
+        == "09:25 UTC (~05:25 EDT, June solstice)"
+    )
 
 
 def test_pymeeus():
-    from pymeeus import Sun, Moon
+    from pymeeus import Moon, Sun
     from pymeeus.Epoch import Epoch
 
     # 2025-06-15 12:00 UTC; utc=True converts to TT (JDE), TT-UTC = 69.184 s
@@ -671,10 +715,20 @@ def test_pymeeus():
 
     # J2000.0 anchor: JD 2451545.0 is 2000-01-01 12:00 TT by definition
     assert Epoch(2451545.0).get_full_date() == (2000, 1, 1, 12, 0, 0.0)
-    assert _expected("pymeeus", "Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?") == "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)"
-    assert _expected("pymeeus", "Moon geocentric ecliptic position 2025-06-15 12:00 UTC?") == "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)"
+    assert (
+        _expected("pymeeus", "Sun apparent ecliptic longitude 2025-06-15 12:00 UTC?")
+        == "84.641 deg (just under the 90 deg solstice; agrees with pysweph to 0.001 deg)"
+    )
+    assert (
+        _expected("pymeeus", "Moon geocentric ecliptic position 2025-06-15 12:00 UTC?")
+        == "lon 313.464 deg, lat -3.157 deg (elongation 228.8 deg - the ephem canary's value)"
+    )
     assert _expected("pymeeus", "2025 spring equinox (UTC)?") == "2025-03-20 09:01:28 (published 09:01:54 UTC)"
-    assert _expected("pymeeus", "Julian date of the J2000.0 epoch?") == "2451545.0 (2000-01-01 12:00 TT, exact by definition)"
+    assert (
+        _expected("pymeeus", "Julian date of the J2000.0 epoch?")
+        == "2451545.0 (2000-01-01 12:00 TT, exact by definition)"
+    )
+
 
 # ------------------------------------------------------------------ colour
 
@@ -690,6 +744,7 @@ def test_colour():
     assert abs(lab[2] - 67.20) < 0.5
     assert _expected("colour-science", "sRGB pure red -> CIE Lab?") == "(53.23, 80.09, 67.20)"
 
+
 # --------------------------------------------------------------------- bio
 
 
@@ -702,6 +757,7 @@ def test_biopython():
     assert "TAA" in tbl.stop_codons
     assert str(Seq("ATGGCT").translate()) == "MA"
     assert _expected("biopython", "Codon ATG in the standard code?") == "M (methionine); TAA is a stop"
+
 
 # ------------------------------------------------------- new candidate tier
 
@@ -832,7 +888,10 @@ def test_pandas_market_calendars():
     days = [d.date() for d in xnys.valid_days("2025-12-24", "2025-12-31")]
     # no Christmas (12/25), no weekends (12/27-28)
     assert days == [date(2025, 12, d) for d in (24, 26, 29, 30, 31)]
-    assert _expected("pandas-market-calendars", "XNYS valid sessions 2025-12-24..31?") == "24, 26, 29, 30, 31 (no Christmas, no weekends)"
+    assert (
+        _expected("pandas-market-calendars", "XNYS valid sessions 2025-12-24..31?")
+        == "24, 26, 29, 30, 31 (no Christmas, no weekends)"
+    )
 
 
 def test_chemicals():
@@ -851,23 +910,43 @@ def test_uniseg():
 
     # UAX #29 GB3: do not break before combining marks - U+0301 attaches to 'a'
     assert list(graphemecluster.grapheme_clusters("a\u0301b")) == ["a\u0301", "b"]
-    assert _expected("uniseg", "How many grapheme clusters are in 'a\u0301b' (a + combining acute + b)?") == "2: 'a\u0301' and 'b' (GB3: no break before combining marks)"
+    assert (
+        _expected("uniseg", "How many grapheme clusters are in 'a\u0301b' (a + combining acute + b)?")
+        == "2: 'a\u0301' and 'b' (GB3: no break before combining marks)"
+    )
 
     # UAX #29 GB9d: do not break between regional indicators - a flag is 1 cluster
-    assert list(graphemecluster.grapheme_clusters("\U0001F1FA\U0001F1F8")) == ["\U0001F1FA\U0001F1F8"]
-    assert _expected("uniseg", "Is the US flag emoji (🇺🇸) one grapheme cluster?") == "yes (two regional indicators pair up - GB9d)"
+    assert list(graphemecluster.grapheme_clusters("\U0001f1fa\U0001f1f8")) == ["\U0001f1fa\U0001f1f8"]
+    assert (
+        _expected("uniseg", "Is the US flag emoji (🇺🇸) one grapheme cluster?")
+        == "yes (two regional indicators pair up - GB9d)"
+    )
 
     # UAX #29 WB7: Letter x MidNum and MidNum x Letter - "o'clock" is one word
     assert list(wordbreak.words("o'clock")) == ["o'clock"]
-    assert _expected("uniseg", "How does 'o'clock' split at word boundaries?") == "1 word (apostrophe after a letter is MidNum - WB7)"
+    assert (
+        _expected("uniseg", "How does 'o'clock' split at word boundaries?")
+        == "1 word (apostrophe after a letter is MidNum - WB7)"
+    )
 
     # UAX #29: one sentence per . / ? terminator
-    assert list(sentencebreak.sentences("Hello there. How are you? I am fine")) == ["Hello there. ", "How are you? ", "I am fine"]
-    assert _expected("uniseg", "Split 'Hello there. How are you? I am fine' into sentences?") == "3: 'Hello there. ', 'How are you? ', 'I am fine'"
+    assert list(sentencebreak.sentences("Hello there. How are you? I am fine")) == [
+        "Hello there. ",
+        "How are you? ",
+        "I am fine",
+    ]
+    assert (
+        _expected("uniseg", "Split 'Hello there. How are you? I am fine' into sentences?")
+        == "3: 'Hello there. ', 'How are you? ', 'I am fine'"
+    )
 
     # UAX #14 LB7: do not break before a space, do break after one
     assert list(linebreak.line_break_units("ab cd")) == ["ab ", "cd"]
-    assert _expected("uniseg", "What are the UAX #14 line break units of 'ab cd'?") == "'ab ' and 'cd' (LB7: break after, not before, a space)"
+    assert (
+        _expected("uniseg", "What are the UAX #14 line break units of 'ab cd'?")
+        == "'ab ' and 'cd' (LB7: break after, not before, a space)"
+    )
+
 
 # ------------------------------------------------------------------ hybrid
 
@@ -875,20 +954,17 @@ def test_uniseg():
 def test_starfile(tmp_path):
     import starfile
 
-    star = (
-        "data_block\n\n"
-        "loop_\n"
-        "_pixel.x\n_pixel.y\n_pixel.intensity\n"
-        "1.0 2.0 100.0\n"
-        "3.0 4.0 200.0\n"
-    )
+    star = "data_block\n\nloop_\n_pixel.x\n_pixel.y\n_pixel.intensity\n1.0 2.0 100.0\n3.0 4.0 200.0\n"
     p = tmp_path / "test.star"
     p.write_text(star)
     blk = starfile.read(p)
     assert list(blk.columns) == ["pixel.x", "pixel.y", "pixel.intensity"]
     assert blk["pixel.x"].tolist() == [1.0, 3.0]
     assert "loop_" in starfile.to_string(blk)
-    assert _expected("starfile", "Parse a .star file with a 2-row pixel array?") == "columns pixel.x/pixel.y/pixel.intensity, values round-trip"
+    assert (
+        _expected("starfile", "Parse a .star file with a 2-row pixel array?")
+        == "columns pixel.x/pixel.y/pixel.intensity, values round-trip"
+    )
 
 
 def test_czml3():
@@ -907,7 +983,10 @@ def test_czml3():
         4785512.491172238,
         5338712.263513341,
     ]
-    assert _expected("czml3", "Generate a CZML packet with one position sample?") == "{'id': ..., 'position': {'epoch': ..., 'cartesian': [x, y, z]}}"
+    assert (
+        _expected("czml3", "Generate a CZML packet with one position sample?")
+        == "{'id': ..., 'position': {'epoch': ..., 'cartesian': [x, y, z]}}"
+    )
 
 
 def test_pysweph():
@@ -930,7 +1009,10 @@ def test_pysweph():
     assert abs(m_lon - 313.46463) < 0.01
     assert abs(m_lat - (-3.16)) < 0.01
     assert abs(m_dist - 0.002581) < 1e-4
-    assert _expected("pysweph", "Sun ecliptic longitude 2025-06-15 12:00 UTC?") == "84.641 deg (JD 2460842.0, just under the 90 deg solstice)"
+    assert (
+        _expected("pysweph", "Sun ecliptic longitude 2025-06-15 12:00 UTC?")
+        == "84.641 deg (JD 2460842.0, just under the 90 deg solstice)"
+    )
 
 
 def test_financedatabase():
@@ -985,7 +1067,10 @@ def test_email_validator():
     # normalization: domain lowercased, local part keeps case (RFC 5321)
     r = validate_email("First.Local@Example.COM", check_deliverability=False)
     assert r.normalized == "First.Local@example.com"
-    assert _expected("email-validator", "Normalize First.Local@Example.COM?") == "First.Local@example.com (domain lowercased, local case kept)"
+    assert (
+        _expected("email-validator", "Normalize First.Local@Example.COM?")
+        == "First.Local@example.com (domain lowercased, local case kept)"
+    )
 
     # cross-check vs the idna card: xn--r8jz45g.jp is the IDNA2008 encoding of
     # 例え.jp, and .normalized decodes the domain back to the Unicode form
@@ -1004,8 +1089,7 @@ def test_unidecode():
     # the combining marks.
     assert unidecode.unidecode("café") == "cafe"
     assert unidecode.unidecode("naïve") == "".join(
-        c for c in unicodedata.normalize("NFD", "naïve")
-        if not unicodedata.combining(c)
+        c for c in unicodedata.normalize("NFD", "naïve") if not unicodedata.combining(c)
     )
     assert _expected("unidecode", "What is the ASCII transliteration of 'café'?") == "cafe"
 

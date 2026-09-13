@@ -13,8 +13,8 @@ from poor_richard.registry import (
     Question,
     ReferenceCard,
     UpdateModel,
-    by_pypi,
     browse,
+    by_pypi,
     catalog,
     get,
     search,
@@ -26,14 +26,14 @@ __all__ = [
     "Question",
     "ReferenceCard",
     "UpdateModel",
-    "by_pypi",
     "browse",
+    "by_pypi",
     "catalog",
     "example",
     "get",
     "main",
-    "search",
     "pra",
+    "search",
 ]
 
 USAGE = "usage: poor-richard [--help <module> | --example [id ...] | --archetype <a[,b...]> | --ask <query>]"

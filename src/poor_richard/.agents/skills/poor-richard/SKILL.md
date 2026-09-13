@@ -29,10 +29,10 @@ Python (primary):
 ```python
 from poor_richard import browse, catalog, example, Archetype
 
-catalog(Archetype.LOOKUP)            # stage 1: survey the class (readable view)
-for c in browse(Archetype.LOOKUP):   # stage 1: the cards, programmatically
-    ...                              # read c.questions shapes, pick the match
-print(example("pycountry"))          # stage 2: conventional call + verified answer
+catalog(Archetype.LOOKUP)  # stage 1: survey the class (readable view)
+for c in browse(Archetype.LOOKUP):  # stage 1: the cards, programmatically
+    ...  # read c.questions shapes, pick the match
+print(example("pycountry"))  # stage 2: conventional call + verified answer
 ```
 
 CLI:
@@ -55,8 +55,8 @@ instead. Feed it *key terms, not the user's sentence* — it is keyword matching
 over the catalog vocabulary, not a chatbot.
 
 ```python
-score, card, question = search("country code")[0]   # key terms
-question.expected                                    # verified answer
+score, card, question = search("country code")[0]  # key terms
+question.expected  # verified answer
 ```
 
 ```
@@ -84,14 +84,14 @@ Exit codes: 0 ok, 1 no match / cannot import, 2 usage error.
 ```python
 from poor_richard import browse, catalog, example, get, search, CARDS, Archetype
 
-catalog(Archetype.LOOKUP)           # stage 1: rendered catalog (shapes, no answers)
-browse(Archetype.LOOKUP)            # stage 1: list[ReferenceCard], one class
-example("bizdays")                  # stage 2: conventional call + verified answer
-card = get("bizdays")               # or by_pypi("pandas-market-calendars")
-card.notes                          # gotchas and API shape at the pinned version
+catalog(Archetype.LOOKUP)  # stage 1: rendered catalog (shapes, no answers)
+browse(Archetype.LOOKUP)  # stage 1: list[ReferenceCard], one class
+example("bizdays")  # stage 2: conventional call + verified answer
+card = get("bizdays")  # or by_pypi("pandas-market-calendars")
+card.notes  # gotchas and API shape at the pinned version
 
-score, card, question = search("...")[0]   # fuzzy fallback
-question.expected                     # verified answer
+score, card, question = search("...")[0]  # fuzzy fallback
+question.expected  # verified answer
 ```
 
 `CARDS` is a tuple of `ReferenceCard` dataclasses (one per card; the current

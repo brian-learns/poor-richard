@@ -4,6 +4,7 @@ Importing this package is cheap: it loads only the registry's card data, not
 any of the libraries. Accessing an attribute (``pra.shapely``) imports that
 one library on demand, and ``dir()`` / REPL tab-completion list them all.
 """
+
 import importlib
 
 from poor_richard.registry import CARDS
