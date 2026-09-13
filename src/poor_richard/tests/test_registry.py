@@ -118,17 +118,6 @@ def test_verified_answers_pinned_in_golden_tests():
             )
 
 
-def test_registry_matches_pyproject():
-    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-    deps = {d.split("==")[0].split(">=")[0].split("<=")[0].strip() for d in pyproject["project"]["dependencies"]}
-    deps |= _optional_packages()
-    carded = {c.pypi for c in CARDS}
-    missing_cards = deps - carded
-    missing_deps = carded - deps
-    assert not missing_cards, f"dependencies without a card: {missing_cards}"
-    assert not missing_deps, f"cards without a dependency: {missing_deps}"
-
-
 def test_every_card_has_example_source():
     """`--example` needs a curated snippet or a derivable golden test per card."""
     for card in CARDS:

@@ -42,6 +42,7 @@ dependencies = [
     "phonenumbers>=9.0.38",
     "pint>=0.25.3",
     "pycountry>=26.2.16",
+    "pydantic>=2.13.5",
     "pymeeus>=0.5.12",
     "pyproj>=3.7.2",
     "pysweph>=2.10.3.6",

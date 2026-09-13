@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import difflib
 import re
-from dataclasses import dataclass
+from pydantic.dataclasses import dataclass
 from enum import Enum
 
 __all__ = [
