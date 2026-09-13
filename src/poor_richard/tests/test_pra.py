@@ -35,7 +35,7 @@ def test_lazy_access_returns_real_module():
 
 def test_unknown_name_raises_attributeerror():
     with pytest.raises(AttributeError):
-        pra.definitely_not_a_library
+        _ = pra.definitely_not_a_library
 
 
 def test_importing_package_does_not_load_libs():
@@ -51,7 +51,8 @@ def test_importing_package_does_not_load_libs():
         "print(any(m in sys.modules for m in "
         "('pycountry', 'iso639', 'babel', 'countryinfo')))"
     )
-    r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    # static argv, code is a fixed local string
+    r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)  # noqa: S603  # nosec B603
     if r.returncode != 0:
         pytest.skip(f"poor_richard not importable in subprocess: {r.stderr.strip()}")
     assert r.stdout.strip() == "False"

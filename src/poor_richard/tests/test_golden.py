@@ -37,9 +37,12 @@ def _expected(card: str, question: str) -> str:
 def test_pycountry():
     import pycountry
 
-    assert pycountry.countries.get(alpha_3="FRA").name == "France"
-    assert pycountry.currencies.get(alpha_3="JPY").name == "Yen"
-    assert pycountry.languages.get(alpha_2="de").name == "German"
+    france = pycountry.countries.get(alpha_3="FRA")
+    assert france is not None and france.name == "France"
+    yen = pycountry.currencies.get(alpha_3="JPY")
+    assert yen is not None and yen.name == "Yen"
+    german = pycountry.languages.get(alpha_2="de")
+    assert german is not None and german.name == "German"
     assert _expected("pycountry", "ISO 3166-1 alpha-3 for France?") == "FRA"
     assert _expected("pycountry", "ISO 4217 name for JPY?") == "Yen"
     assert _expected("pycountry", "ISO 639-1 'de' language name?") == "German"
@@ -48,7 +51,7 @@ def test_pycountry():
 def test_iso639():
     import iso639
 
-    de = next(l for l in iso639.ALL_LANGUAGES if l.part1 == "de")
+    de = next(lang for lang in iso639.ALL_LANGUAGES if lang.part1 == "de")
     assert de.part3 == "deu"  # ISO 639-3; 639-2/B is "ger"
     assert de.name == "German"
     assert _expected("python-iso639", "ISO 639-3 code for ISO 639-1 'de'?") == "deu (639-2/B is 'ger')"
@@ -113,7 +116,7 @@ def test_h3():
     assert _expected("h3", "Grid distance 85283473fffffff -> 8528342bfffffff?") == "2"
 
 
-class LibpostalMissing(Exception):
+class LibpostalMissingError(Exception):
     """Raised when the system libpostal.so.1 is not on disk."""
 
 
@@ -129,7 +132,7 @@ def _preload_libpostal():
         if candidate.exists():
             ctypes.CDLL(str(candidate))
             return
-    raise LibpostalMissing
+    raise LibpostalMissingError
 
 
 def _point_libpostal_at_data():
@@ -147,12 +150,12 @@ def _point_libpostal_at_data():
 def test_postal():
     try:
         _preload_libpostal()
-    except LibpostalMissing:
+    except LibpostalMissingError:
         pytest.skip("system libpostal.so.1 not found")
     _point_libpostal_at_data()
     try:
-        from postal.expand import expand_address
-        from postal.parser import parse_address
+        from postal.expand import expand_address  # ty: ignore[unresolved-import]  # optional 'full' extra
+        from postal.parser import parse_address  # ty: ignore[unresolved-import]
     except ImportError:
         pytest.skip("pypostal-multiarch not installed")
 
@@ -241,7 +244,7 @@ def test_scipy_constants():
 
 def test_astropy_constants():
     from astropy import units as u
-    from astropy.constants import G, c
+    from astropy.constants import G, c  # ty: ignore[unresolved-import]  # lazy-loaded module
 
     assert c.value == 299792458.0  # exact by definition (SI)
     # CODATA 2018: G = 6.67430(15) x 10^-11 m^3 kg^-1 s^-2
@@ -307,11 +310,11 @@ def test_ambiance():
 
     # cross-check against the closed-form ISA troposphere equation
     # P = P0 * (T/T0)^(g0/(R*L)), independent of the package's implementation
-    g0, R, gamma, T0, P0, L, Re = 9.80665, 287.05287, 1.4, 288.15, 101325.0, 0.0065, 6356766.0
-    H = 10000.0  # geopotential height
+    g0, R, gamma, T0, P0, L, Re = 9.80665, 287.05287, 1.4, 288.15, 101325.0, 0.0065, 6356766.0  # noqa: N806  # ISA constants keep textbook names
+    H = 10000.0  # noqa: N806  # geopotential height
     h = H / (1.0 - H / Re)  # -> geometric (Atmosphere takes geometric input)
-    T = T0 - L * H
-    P = P0 * (T / T0) ** (g0 / (R * L))
+    T = T0 - L * H  # noqa: N806
+    P = P0 * (T / T0) ** (g0 / (R * L))  # noqa: N806
     at = Atmosphere(h)
     assert abs(at.temperature[0] - T) < 1e-6
     assert abs(at.pressure[0] - P) < 1e-3  # ~26436.2 Pa
@@ -379,7 +382,7 @@ def test_convertdate():
     assert mayan.to_gregorian(13, 0, 0, 0, 0) == (2012, 12, 21)
     assert (
         _expected("convertdate", "What is 2000-02-28 in the Julian calendar?")
-        == "2000-02-15 (13 days behind, 1900–2100)"
+        == "2000-02-15 (13 days behind, 1900-2100)"
     )
     assert _expected("convertdate", "Hebrew date for 2024-10-03?") == "1 Tishrei 5785 (first day of Rosh Hashanah)"
     assert _expected("convertdate", "Islamic date for 622-07-19 (Gregorian)?") == "1 Muharram 1 AH (Hijra epoch)"
@@ -433,7 +436,7 @@ def test_icalendar():
     from datetime import timedelta
 
     from icalendar import Calendar, Event
-    from icalendar.prop import vDate, vDuration
+    from icalendar.prop import vDate, vDDDTypes, vDuration
 
     # RFC 5545 section 3.8.3 example VEVENT (values from the RFC itself)
     cal = Calendar.from_ical(
@@ -451,11 +454,13 @@ def test_icalendar():
     )
     ev = cal.walk("VEVENT")[0]
     assert str(ev["SUMMARY"]) == "Meeting with Jeffrey"
-    assert ev["DTSTART"].dt == datetime(2007, 9, 8, 13, 0, tzinfo=timezone.utc)
-    assert ev["DTSTART"].to_ical() == b"20070908T130000Z"
+    dtstart = ev["DTSTART"]
+    assert isinstance(dtstart, vDDDTypes)  # DTSTART may parse as date, datetime, or duration
+    assert dtstart.dt == datetime(2007, 9, 8, 13, 0, tzinfo=timezone.utc)
+    assert dtstart.to_ical() == b"20070908T130000Z"
     assert (
         _expected("icalendar", "SUMMARY of the RFC 5545 example VEVENT?")
-        == "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)"
+        == "Meeting with Jeffrey (2007-09-08 13:00-15:00 UTC, §3.8.3)"
     )
 
     # generation: exact content lines per RFC 5545 section 3.1/3.3.5
@@ -504,7 +509,7 @@ def test_icalendar():
     assert datetime(2007, 1, 15, 12, tzinfo=ny).utcoffset() == timedelta(hours=-5)
     assert (
         _expected("icalendar", "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?")
-        == "EST −0500, EDT −0400 (matches IANA zoneinfo)"
+        == "EST -0500, EDT -0400 (matches IANA zoneinfo)"
     )
 
     # DATE-TIME / DURATION property values (RFC 5545 sections 3.3.5/3.3.6)
@@ -518,7 +523,7 @@ def test_iso4217():
 
     assert iso4217.raw_table["JPY"]["CcyMnrUnts"] == "0"
     assert iso4217.raw_table["USD"]["CcyNm"] == "US Dollar"
-    assert iso4217.Currency.usd.value == "USD"
+    assert iso4217.Currency.usd.value == "USD"  # ty: ignore[unresolved-attribute]  # members generated at runtime
     assert _expected("iso4217", "Minor-unit decimals for JPY?") == "0"
     assert _expected("iso4217", "ISO 4217 name for USD?") == "US Dollar"
 
@@ -660,7 +665,7 @@ def test_sgp4():
     assert satrec.satnum == 25544
     # TLE inclination 51.6416 deg (the record's own value)
     assert abs(math.degrees(satrec.inclo) - 51.6416) < 1e-4
-    e, r, v = satrec.sgp4_tsince(0.0)  # at the TLE epoch
+    e, r, _ = satrec.sgp4_tsince(0.0)  # at the TLE epoch
     assert e == 0
     radius = math.sqrt(r[0] ** 2 + r[1] ** 2 + r[2] ** 2)
     altitude = radius - 6378.137
@@ -676,9 +681,9 @@ def test_astral():
     from astral.sun import sunrise
 
     obs = Observer(latitude=40.7128, longitude=-74.0060)
-    sunrise = sunrise(obs, date(2025, 6, 21))  # UTC by default
+    sunrise_dt = sunrise(obs, date(2025, 6, 21))  # UTC by default
     # ~05:25 EDT on the June solstice = ~09:25 UTC at ~-74 deg longitude
-    assert 9.0 <= sunrise.hour <= 10 and sunrise.tzinfo is not None
+    assert 9.0 <= sunrise_dt.hour <= 10 and sunrise_dt.tzinfo is not None
     assert (
         _expected("astral", "Sunrise in New York (40.7128, -74.0060) on 2025-06-21?")
         == "09:25 UTC (~05:25 EDT, June solstice)"
@@ -698,7 +703,7 @@ def test_pymeeus():
     assert abs(float(slat)) < 0.01
     assert abs(sr - 1.015725) < 1e-4  # ~1.016 AU, near aphelion (July 4)
 
-    mlon, mlat, mdist, mpar = Moon.Moon.geocentric_ecliptical_pos(e)
+    mlon, mlat, mdist, _ = Moon.Moon.geocentric_ecliptical_pos(e)
     # cross-checked against pysweph (313.46463 / -3.16); the elongation is
     # the 228.8 deg that the ephem xfail canary expects (waning gibbous,
     # 4.5 days past the 2025-06-11 full moon)
@@ -819,9 +824,9 @@ def test_particle():
     # PDG code 13 = muon-, 11 = electron-; masses in MeV (PDG values)
     mu = Particle.from_pdgid(13)
     assert mu.name == "mu-"
-    assert abs(mu.mass - 105.6583755) < 0.01
+    assert mu.mass is not None and abs(mu.mass - 105.6583755) < 0.01
     e = Particle.from_pdgid(11)
-    assert abs(e.mass - 0.51099895) < 0.001
+    assert e.mass is not None and abs(e.mass - 0.51099895) < 0.001
     assert _expected("particle", "Particle with PDG code 13?") == "mu-, mass 105.6583755 MeV"
 
 
@@ -866,8 +871,10 @@ def test_bizdays():
 def test_charset_normalizer():
     import charset_normalizer as cn
 
-    assert cn.from_bytes("héllo wörld, façade, naïve".encode("utf-8")).best().encoding == "utf_8"
-    assert cn.from_bytes(b"plain ascii text, no accents at all").best().encoding == "ascii"
+    utf8 = cn.from_bytes("héllo wörld, façade, naïve".encode("utf-8")).best()
+    assert utf8 is not None and utf8.encoding == "utf_8"
+    ascii_ = cn.from_bytes(b"plain ascii text, no accents at all").best()
+    assert ascii_ is not None and ascii_.encoding == "ascii"
     assert _expected("charset-normalizer", "Encoding of a UTF-8 accented string?") == "utf_8"
     # single-byte family (cp125x) detection is ambiguous for short samples;
     # only the unambiguous cases are golden-tested
@@ -952,12 +959,14 @@ def test_uniseg():
 
 
 def test_starfile(tmp_path):
+    import pandas as pd
     import starfile
 
     star = "data_block\n\nloop_\n_pixel.x\n_pixel.y\n_pixel.intensity\n1.0 2.0 100.0\n3.0 4.0 200.0\n"
     p = tmp_path / "test.star"
     p.write_text(star)
     blk = starfile.read(p)
+    assert isinstance(blk, pd.DataFrame)  # a single loop_ block reads as a DataFrame
     assert list(blk.columns) == ["pixel.x", "pixel.y", "pixel.intensity"]
     assert blk["pixel.x"].tolist() == [1.0, 3.0]
     assert "loop_" in starfile.to_string(blk)
@@ -969,13 +978,13 @@ def test_starfile(tmp_path):
 
 def test_czml3():
     import czml3
+    import czml3.properties
 
     pos = czml3.properties.Position(
         epoch="2025-01-01T00:00:00Z",
         cartesian=[-12981922.577142939, 4785512.491172238, 5338712.263513341],
     )
-    pkt = czml3.Packet(id="test-sat", position=pos)
-    d = pkt.model_dump(by_alias=True, exclude_none=True)
+    d = czml3.Packet(id="test-sat", position=pos).model_dump(by_alias=True, exclude_none=True)
     assert d["id"] == "test-sat"
     assert d["position"]["epoch"] == "2025-01-01T00:00:00Z"
     assert d["position"]["cartesian"] == [
@@ -990,12 +999,12 @@ def test_czml3():
 
 
 def test_pysweph():
-    import swisseph
+    import swisseph  # ty: ignore[unresolved-import]  # C extension without stubs
 
     # 2025-06-15 12:00 UTC = JD 2460842.0 (2.6 days before the June solstice,
     # so the sun's ecliptic longitude is just under 90 degrees)
     jd = 2460842.0
-    results, retflags, warn = swisseph.calc_ut(jd, swisseph.SUN)
+    results, _, warn = swisseph.calc_ut(jd, swisseph.SUN)
     lon, lat, dist = results[:3]
     assert 84.5 < lon < 84.8
     assert abs(lat) < 0.001
@@ -1017,7 +1026,7 @@ def test_pysweph():
 
 def test_financedatabase():
     try:
-        import financedatabase
+        import financedatabase  # ty: ignore[unresolved-import]  # optional 'full' extra
     except ImportError:
         pytest.skip("financedatabase not installed (optional 'full' extra)")
     from pathlib import Path

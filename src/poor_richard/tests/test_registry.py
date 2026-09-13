@@ -56,17 +56,21 @@ def test_cards_well_formed():
 
 def _optional_packages():
     """pypi names in [project.optional-dependencies] — may be absent in a base install."""
-    pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
-    groups = pyproject.get("project", {}).get("optional-dependencies", {}).values()
+    groups = (
+        tomllib.loads((REPO_ROOT / "pyproject.toml").read_text())
+        .get("project", {})
+        .get("optional-dependencies", {})
+        .values()
+    )
     return {d.split(">=")[0].split("<=")[0].strip() for group in groups for d in group}
 
 
 def test_import_names_resolvable():
-    from poor_richard.tests.test_golden import LibpostalMissing, _preload_libpostal
+    from poor_richard.tests.test_golden import LibpostalMissingError, _preload_libpostal
 
     try:
         _preload_libpostal()
-    except LibpostalMissing:
+    except LibpostalMissingError:
         pytest.skip("system libpostal.so.1 not found")
     optional = _optional_packages()
     for card in CARDS:
@@ -164,8 +168,8 @@ def test_search_exact_id_wins():
 
 
 def test_search_no_match():
-    assert search("zzzqqq xkcdplugh") == []
-    assert search("the of and") == []  # stopwords only
+    assert not search("zzzqqq xkcdplugh")
+    assert not search("the of and")  # stopwords only
 
 
 def test_browse_all():

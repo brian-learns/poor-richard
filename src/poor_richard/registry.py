@@ -545,7 +545,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         questions=(
             Question(
                 "What is 2000-02-28 in the Julian calendar?",
-                "2000-02-15 (13 days behind, 1900–2100)",
+                "2000-02-15 (13 days behind, 1900-2100)",
                 "verified",
                 "test_convertdate",
             ),
@@ -585,7 +585,7 @@ CARDS: tuple[ReferenceCard, ...] = (
             _A.CONVERT,
             _A.TEMPORAL,
         ),
-        provenance="Bundled YEAR_INFOS table: 200 years (1900–2099) of lunar month lengths and "
+        provenance="Bundled YEAR_INFOS table: 200 years (1900-2099) of lunar month lengths and "
         "leap-month encodings of the astronomical Chinese calendar (derived from the C program `lunar`)",
         keywords="cny spring festival lunar new year mid-autumn",
         update_model=_U.SNAPSHOT,
@@ -647,7 +647,7 @@ CARDS: tuple[ReferenceCard, ...] = (
         questions=(
             Question(
                 "SUMMARY of the RFC 5545 example VEVENT?",
-                "Meeting with Jeffrey (2007-09-08 13:00–15:00 UTC, §3.8.3)",
+                "Meeting with Jeffrey (2007-09-08 13:00-15:00 UTC, §3.8.3)",
                 "verified",
                 "test_icalendar",
             ),
@@ -659,7 +659,7 @@ CARDS: tuple[ReferenceCard, ...] = (
             ),
             Question(
                 "Offsets in the RFC 5545 VTIMEZONE example (America/New_York)?",
-                "EST −0500, EDT −0400 (matches IANA zoneinfo)",
+                "EST -0500, EDT -0400 (matches IANA zoneinfo)",
                 "verified",
                 "test_icalendar",
             ),
@@ -1615,7 +1615,7 @@ _MIN_SCORE = 0.25
 
 
 def _tokens(text: str) -> set[str]:
-    out = set()
+    out: set[str] = set()
     for t in _TOKEN.findall(text.lower()):
         if t in _STOP:
             continue

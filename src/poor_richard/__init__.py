@@ -4,6 +4,7 @@ import ast
 import importlib
 import os
 import sys
+from contextlib import suppress
 from pathlib import Path
 
 from poor_richard import pra
@@ -197,11 +198,9 @@ def _show_help(args: list[str]) -> int:
     # resolve card id or PyPI name to the import name; fall back to the raw name
     import_name = name
     for lookup in (get, by_pypi):
-        try:
+        with suppress(KeyError):
             import_name = lookup(name).import_name
             break
-        except KeyError:
-            pass
     try:
         module = importlib.import_module(import_name)
     except ImportError as exc:

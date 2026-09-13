@@ -7,13 +7,14 @@ data at import time fails loudly, which is the desired behaviour.
 """
 
 import socket
+from typing import NoReturn
 
 import pytest
 
 
 @pytest.fixture(autouse=True)
 def no_network():
-    def blocked(*args, **kwargs):
+    def blocked(*_args, **_kwargs) -> NoReturn:
         raise RuntimeError("network access attempted (blocked by tests/conftest.py)")
 
     old = (
@@ -23,7 +24,7 @@ def no_network():
     )
     socket.socket.connect = blocked
     socket.socket.connect_ex = blocked
-    socket.getaddrinfo = blocked
+    socket.getaddrinfo = blocked  # ty: ignore[invalid-assignment]  # monkeypatch; typeshed overloads make this untypeable
     try:
         yield
     finally:
