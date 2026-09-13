@@ -83,6 +83,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "bandit>=1.9.4",
+    "bpython>=0.26",
     "interrogate>=1.7.0",
     "pipdeptree>=4.2.5",
     "pytest>=9.1.1",
